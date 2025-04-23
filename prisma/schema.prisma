@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  roleId    String
+  avatarUrl String
+  role      Role     @relation(fields: [roleId], references: [id])
+  comments  Comment[]
+  courses   Course[] @relation("TeacherCourses")
+  enrollments Enrollment[]
+}
+
+model Role {
+  id    String @id @default(cuid())
+  type  String @unique
+  users User[]
+}
+
+
+
+model Category {
+  id           String        @id @default(cuid())
+  name         String
+  subcategories Subcategory[]
+  courses      Course[]
+}
+
+model Subcategory {
+  id          String        @id @default(cuid())
+  name        String
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  courses     Course[]
+}
+
+model Course {
+  id            String       @id @default(cuid())
+  title         String
+  image         String
+  description   String
+  categoryId    String?
+  category      Category?    @relation(fields: [categoryId], references: [id])
+  subcategoryId String?
+  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id])
+  subscribers   String
+  teacherId     String
+  duration      Int?
+  teacher       User         @relation("TeacherCourses", fields: [teacherId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  tags          CourseTag[]
+  modules       Module[]
+  enrollments   Enrollment[]
+  comments      Comment[]
+  files         File[]
+}
+
+model Module {
+  id        String    @id @default(cuid())
+  courseId  String
+  course    Course    @relation(fields: [courseId], references: [id])
+  description String
+  order     Int
+  lectures    Lecture[]  @relation("ModuleLectures") // связь с лекциями
+  tests     Test[]
+}
+
+model Lecture {
+  id         String    @id @default(cuid()) // уникальный идентификатор лекции
+  title      String    // название лекции
+  content    String    // содержимое лекции
+  order      Int       // порядок лекции в модуле
+  moduleId   String    // ID модуля, к которому относится лекция
+  module     Module    @relation("ModuleLectures", fields: [moduleId], references: [id]) // связь с модулем
+  comments   Comment[] // связь с комментариями, прикрепленными к лекции
+  files      File[]    @relation("LectureFile") // связь с файлами
+}
+
+
+
+
+model Test {
+  id        String     @id @default(cuid())
+  title     String
+  moduleId  String
+  module    Module     @relation(fields: [moduleId], references: [id])
+  questions Question[]
+  duration  Int?       // длительность теста в минутах
+}
+
+model Question {
+  id             String   @id @default(cuid())
+  testId         String
+  questionText   String
+  options        String[] // массив вариантов
+  correctAnswer  Int
+  test           Test     @relation(fields: [testId], references: [id])
+
+  @@unique([testId, questionText]) // уникальность для теста и текста вопроса
+}
+
+model Comment {
+  id        String   @id @default(cuid()) // уникальный идентификатор комментария
+  content   String   // содержимое комментария
+  createdAt DateTime @default(now()) // дата создания комментария
+  courseId  String   // ID курса, к которому относится комментарий
+  course    Course   @relation(fields: [courseId], references: [id]) // связь с курсом
+  lectureId String?  // ID лекции (если комментарий относится к лекции)
+  lecture   Lecture? @relation(fields: [lectureId], references: [id]) // связь с лекцией (необязательное)
+  userId    String   // ID пользователя, который оставил комментарий
+  user      User     @relation(fields: [userId], references: [id]) // связь с пользователем
+}
+
+
+model File {
+  id           String   @id @default(cuid()) // уникальный идентификатор файла
+  url          String   // URL для доступа к файлу
+  originalName String   // оригинальное имя файла
+  uploadedAt   DateTime @default(now()) // дата загрузки файла
+  courseId     String?  // ID курса (если файл относится к курсу)
+  course       Course?  @relation(fields: [courseId], references: [id]) // связь с таблицей Course (если файл относится к курсу)
+  lectureId    String?  // ID лекции (если файл относится к лекции)
+  lecture      Lecture? @relation("LectureFile", fields: [lectureId], references: [id]) // связь с таблицей Lecture (если файл относится к лекции)
+}
+
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  enrolledAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  course     Course   @relation(fields: [courseId], references: [id])
+  
+  @@unique([userId, courseId])  // уникальность для пары userId и courseId
+}
+
+model Tag {
+  id   String  @id @default(cuid())
+  name String  @unique
+  courses CourseTag[]
+}
+
+model CourseTag {
+  id       String  @id @default(cuid())
+  courseId String
+  tagId    String
+  course   Course @relation(fields: [courseId], references: [id])
+  tag      Tag    @relation(fields: [tagId], references: [id])
+
+  @@unique([courseId, tagId])  // составной уникальный индекс
+}
+
+
