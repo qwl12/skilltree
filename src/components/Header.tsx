@@ -35,14 +35,14 @@ const Header = () => {
             <Link rel="stylesheet" href="/" className={`${inria.className} text-3xl font-bold text-green-600 hover:text-green-700 transition`}>SkillTree</Link>
 
             <nav className='space-x-4 flex px-10'>
-                <Link href={'catalog'}  className={`text-black hover:text-green-500`}>Каталог</Link>
+                <Link href={'catalog'}  className={`text-black hover:text-green-700`}>Каталог</Link>
                 <Image
                 src={'/arrowdown.svg'}
                 alt="logo"
                 width={10}
                 height={7}
                 />
-                <Link href={'catalog'} className={`text-black hover:text-green-500`}>Создать курс</Link>
+                <Link href={'catalog'} className={`text-black hover:text-green-700`}>Создать курс</Link>
 
             </nav>
           </div>
