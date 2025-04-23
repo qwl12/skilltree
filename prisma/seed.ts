@@ -42,7 +42,7 @@ async function main() {
     data: [
       {
         title: "Введение в 1С",
-        image: "1c.svg",
+        image: "ones.svg",
         description: "Научитесь основам 1С и создания привлекательных сайтов.",
         subscribers: "530",
         duration: 12,
