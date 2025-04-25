@@ -22,11 +22,12 @@ export default function PopularCourses() {
     const fetchCourses = async () => {
       const res = await fetch("/api/popular-courses");
       const data = await res.json();
+      console.log("дата:", data); 
       setCourses(data);
     };
-
     fetchCourses();
   }, []);
+  
 
   return (
     <section className="py-8 px-4 flex flex-col items-center">

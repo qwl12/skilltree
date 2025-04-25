@@ -3,89 +3,180 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Создаем роли
+  // Создаем роли
   const adminRole = await prisma.role.create({
     data: {
-      type: 'admin',
+      type: "admin",
     },
   });
 
   const userRole = await prisma.role.create({
     data: {
-      type: 'user',
+      type: "user",
     },
   });
 
-  // 2. Создаем пользователей
+  const teacherRole = await prisma.role.create({
+    data: {
+      type: "teacher",
+    },
+  });
+
+  // Создаем пользователей
   const adminUser = await prisma.user.create({
     data: {
-      name: 'Admin User',
-      email: 'admin@admin.com',
-      password: 'securepassword',
+      name: "Admin User",
+      email: "admin@admin.com",
+      password: "securepassword",
       roleId: adminRole.id,
-      avatarUrl: 'http://example.com/avatar.jpg',
+      avatarUrl: "http://example.com/avatar.jpg",
     },
   });
 
   const studentUser = await prisma.user.create({
     data: {
-      name: 'Student User',
-      email: 'student@student.com',
-      password: 'studentpassword',
+      name: "Student User",
+      email: "student@student.com",
+      password: "studentpassword",
       roleId: userRole.id,
-      avatarUrl: 'http://example.com/avatar2.jpg',
+      avatarUrl: "http://example.com/avatar2.jpg",
     },
   });
 
-  // 3. Создаем курсы
+  const teacherUser = await prisma.user.create({
+    data: {
+      name: "Teacher User",
+      email: "teacher@teacher.com",
+      password: "teacherpassword",
+      roleId: teacherRole.id,
+      avatarUrl: "http://example.com/avatar3.jpg",
+    },
+  });
+
+  // Создаем категории
+  const category1 = await prisma.category.create({
+    data: {
+      name: "Web Development",
+
+    },
+  });
+
+  const category2 = await prisma.category.create({
+    data: {
+      name: "Data Science",
+    
+    },
+  });
+
+  const category3 = await prisma.category.create({
+    data: {
+      name: "Design",
+
+    },
+  });
+
+  // Создаем подкатегории
+  const subcategory1 = await prisma.subcategory.create({
+    data: {
+      name: "Frontend Development",
+    
+      categoryId: category1.id,
+    },
+  });
+
+  const subcategory2 = await prisma.subcategory.create({
+    data: {
+      name: "Backend Development",
+
+      categoryId: category1.id,
+    },
+  });
+
+  const subcategory3 = await prisma.subcategory.create({
+    data: {
+      name: "Machine Learning",
+
+      categoryId: category2.id,
+    },
+  });
+
+  // Создаем курсы
   const courses = await prisma.course.createMany({
     data: [
       {
-        title: "Введение в 1С",
+        title: "Улучшение soft-skills",
+        image: "like.svg",
+        description: "Learn the basics of React.js",
+        subscribers: 530,
+        duration: 10,
+        teacherId: teacherUser.id,
+        categoryId: category1.id,
+        subcategoryId: subcategory1.id,
+      },
+      {
+        title: "Основы 1с",
         image: "ones.svg",
-        description: "Научитесь основам 1С и создания привлекательных сайтов.",
-        subscribers: "530",
-        duration: 12,
-        teacherId: adminUser.id,
-      },
-      {
-        title: 'Advanced Node.js',
-        description: 'Dive deep into Node.js',
-        image: 'like.svg',
+        description: "Dive deep into Node.js and Express",
+        subscribers: 200,
         duration: 20,
-        subscribers: '100',
-        teacherId: adminUser.id,
+        teacherId: teacherUser.id,
+        categoryId: category1.id,
+        subcategoryId: subcategory2.id,
       },
       {
-        title: 'CSS for Beginners',
-        description: 'Start learning CSS',
-        image: 'Python.svg',
-        subscribers: '200',
-        teacherId: adminUser.id,
+        title: "Python для начинающих",
+        image: "Python.svg",
+        description: "Learn Python and Data Science tools",
+        subscribers: 150,
+        duration: 25,
+        teacherId: teacherUser.id,
+        categoryId: category2.id,
+        subcategoryId: subcategory3.id,
+      },
+      {
+        title: "Дизайн: обо всем по порядку",
+        image: "like.svg",
+        description: "Learn the basics of UI/UX design",
+        subscribers: 300,
+        duration: 15,
+        teacherId: teacherUser.id,
+        categoryId: category3.id,
+        subcategoryId: subcategory3.id,
       },
     ],
   });
 
-  console.log('Roles, users, and courses have been created.');
+  console.log("Roles, users, categories, subcategories, and courses have been created.");
 
-  // 4. Получаем популярные курсы
+  // Получаем популярные курсы
   await getPopularCourses();
 }
 
 async function getPopularCourses() {
   const popularCourses = await prisma.course.findMany({
     orderBy: {
-      subscribers: 'desc',  // Сортировка по количеству подписчиков
+      subscribers: "desc", // Сортировка по количеству подписчиков
     },
-    take: 6,  // Возьмем только 5 самых популярных
+    take: 6,
+    include: {
+      teacher: {
+        select: { name: true },
+      },
+      category: {
+        select: { name: true },
+      },
+      subcategory: {
+        select: { name: true },
+      },
+    },
   });
 
-  console.log('Популярные курсы:', popularCourses);
+  console.log("Популярные курсы:", popularCourses);
 }
 
 main()
   .catch((e) => {
-    throw e;
+    console.error("Ошибка при запуске сидинга:", e);
   })
   .finally(async () => {
     await prisma.$disconnect();
