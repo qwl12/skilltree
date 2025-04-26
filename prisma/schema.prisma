@@ -8,11 +8,11 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
-  roleId    String
+  roleId    Int
   avatarUrl String
   role      Role     @relation(fields: [roleId], references: [id])
   comments  Comment[]
@@ -23,42 +23,59 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+  followers   Follow[] @relation("followers")
+  following   Follow[] @relation("following")
+
+
+
 }
 
 model Role {
-  id    String @id @default(cuid())
+  id    Int      @id @default(autoincrement())
   type  String @unique
   users User[]
+}
+
+model Follow {
+  id           Int      @id @default(autoincrement())
+  followerId   Int
+  followingId  Int
+  createdAt    DateTime @default(now())
+
+  follower     User     @relation("following", fields: [followerId], references: [id])
+  following    User     @relation("followers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
 }
 
 
 
 model Category {
-  id           String        @id @default(cuid())
+  id           Int      @id @default(autoincrement())
   name         String
   subcategories Subcategory[]
   courses      Course[]
 }
 
 model Subcategory {
-  id          String        @id @default(cuid())
+  id          Int      @id @default(autoincrement())
   name        String
-  categoryId  String
+  categoryId  Int
   category    Category      @relation(fields: [categoryId], references: [id])
   courses     Course[]
 }
 
 model Course {
-  id            String       @id @default(cuid())
+  id            Int      @id @default(autoincrement())
   title         String
   image         String
   description   String
-  categoryId    String?
+  categoryId    Int?
   category      Category?    @relation(fields: [categoryId], references: [id])
-  subcategoryId String?
+  subcategoryId Int?
   subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id])
   subscribers   Int @default(0)
-  teacherId     String
+  teacherId     Int
   duration      Int?
   teacher       User         @relation("TeacherCourses", fields: [teacherId], references: [id])
   createdAt     DateTime     @default(now())
@@ -72,8 +89,8 @@ model Course {
 }
 
 model Module {
-  id        String    @id @default(cuid())
-  courseId  String
+  id        Int      @id @default(autoincrement())
+  courseId  Int
   course    Course    @relation(fields: [courseId], references: [id])
   description String
   order     Int
@@ -82,31 +99,31 @@ model Module {
 }
 
 model Lecture {
-  id         String    @id @default(cuid()) // уникальный идентификатор лекции
-  title      String    // название лекции
-  content    String    // содержимое лекции
-  order      Int       // порядок лекции в модуле
-  moduleId   String    // ID модуля, к которому относится лекция
-  module     Module    @relation("ModuleLectures", fields: [moduleId], references: [id]) // связь с модулем
-  comments   Comment[] // связь с комментариями, прикрепленными к лекции
-  files      File[]    @relation("LectureFile") // связь с файлами
+  id         Int      @id @default(autoincrement())
+  title      String    
+  content    String    
+  order      Int       
+  moduleId   Int      
+  module     Module    @relation("ModuleLectures", fields: [moduleId], references: [id]) 
+  comments   Comment[] 
+  files      File[]    @relation("LectureFile")
 }
 
 
 
 
 model Test {
-  id        String     @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   title     String
-  moduleId  String
+  moduleId  Int
   module    Module     @relation(fields: [moduleId], references: [id])
   questions Question[]
   duration  Int?       // длительность теста в минутах
 }
 
 model Question {
-  id             String   @id @default(cuid())
-  testId         String
+  id             Int      @id @default(autoincrement())
+  testId         Int
   questionText   String
   options        String[] // массив вариантов
   correctAnswer  Int
@@ -116,34 +133,34 @@ model Question {
 }
 
 model Comment {
-  id        String   @id @default(cuid()) // уникальный идентификатор комментария
+  id        Int      @id @default(autoincrement())
   content   String   // содержимое комментария
   createdAt DateTime @default(now()) // дата создания комментария
-  courseId  String   // ID курса, к которому относится комментарий
+  courseId  Int // ID курса, к которому относится комментарий
   course    Course   @relation(fields: [courseId], references: [id]) // связь с курсом
-  lectureId String?  // ID лекции (если комментарий относится к лекции)
+  lectureId Int?  // ID лекции (если комментарий относится к лекции)
   lecture   Lecture? @relation(fields: [lectureId], references: [id]) // связь с лекцией (необязательное)
-  userId    String   // ID пользователя, который оставил комментарий
+  userId    Int   // ID пользователя, который оставил комментарий
   user      User     @relation(fields: [userId], references: [id]) // связь с пользователем
 }
 
 
 model File {
-  id           String   @id @default(cuid()) // уникальный идентификатор файла
+  id           Int      @id @default(autoincrement())
   url          String   // URL для доступа к файлу
   originalName String   // оригинальное имя файла
   uploadedAt   DateTime @default(now()) // дата загрузки файла
-  courseId     String?  // ID курса (если файл относится к курсу)
+  courseId     Int?  // ID курса (если файл относится к курсу)
   course       Course?  @relation(fields: [courseId], references: [id]) // связь с таблицей Course (если файл относится к курсу)
-  lectureId    String?  // ID лекции (если файл относится к лекции)
+  lectureId    Int?  // ID лекции (если файл относится к лекции)
   lecture      Lecture? @relation("LectureFile", fields: [lectureId], references: [id]) // связь с таблицей Lecture (если файл относится к лекции)
 }
 
 
 model Enrollment {
-  id         String   @id @default(cuid())
-  userId     String
-  courseId   String
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  courseId   Int
   enrolledAt DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id])
   course     Course   @relation(fields: [courseId], references: [id])
@@ -152,15 +169,15 @@ model Enrollment {
 }
 
 model Tag {
-  id   String  @id @default(cuid())
+  id   Int      @id @default(autoincrement())
   name String  @unique
   courses CourseTag[]
 }
 
 model CourseTag {
-  id       String  @id @default(cuid())
-  courseId String
-  tagId    String
+  id       Int      @id @default(autoincrement())
+  courseId Int
+  tagId    Int
   course   Course @relation(fields: [courseId], references: [id])
   tag      Tag    @relation(fields: [tagId], references: [id])
 
@@ -168,8 +185,8 @@ model CourseTag {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
+  id                 Int      @id @default(autoincrement())
+  userId             Int  @map("user_id")
   type               String
   provider           String
   providerAccountId  String  @map("provider_account_id")
@@ -188,9 +205,9 @@ model Account {
 }
  
 model Session {
-  id           String   @id @default(cuid())
+  id           Int      @id @default(autoincrement())
   sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
+  userId       Int   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
  
