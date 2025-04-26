@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const courses = await prisma.course.findMany({
+      // Хайповые курсы
       orderBy: { subscribers: "desc" },
       take: 6,
       include: {

@@ -30,7 +30,7 @@ export default function PopularCourses() {
   
 
   return (
-    <section className="py-8 px-4 flex flex-col items-center">
+    <section className="py-8 px-17 flex flex-col items-center">
       <div>
         <h2 className="text-4xl text-black font-bold mb-8">Популярные курсы</h2>
         <div className="flex flex-wrap justify-center gap-7">

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-
+// npx prisma db seed
 const prisma = new PrismaClient();
 
 async function main() {
@@ -145,7 +145,55 @@ async function main() {
       },
     ],
   });
-
+  const teacher1 = await prisma.user.create({
+    data: {
+      name: "Анна Иванова",
+      email: "anna@example.com",
+      password: "password123", // В реальном проекте пароль хэшируй!
+      roleId: teacherRole.id,
+      avatarUrl: "https://randomuser.me/api/portraits/women/45.jpg",
+    },
+  });
+  
+  const teacher2 = await prisma.user.create({
+    data: {
+      name: "Дмитрий Смирнов",
+      email: "dmitry@example.com",
+      password: "password123",
+      roleId: teacherRole.id,
+      avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+    },
+  });
+  
+  const teacher3 = await prisma.user.create({
+    data: {
+      name: "Екатерина Сидорова",
+      email: "ekaterina@example.com",
+      password: "password123",
+      roleId: teacherRole.id,
+      avatarUrl: "https://randomuser.me/api/portraits/women/51.jpg",
+    },
+  });
+  
+  const teacher4 = await prisma.user.create({
+    data: {
+      name: "Алексей Кузнецов",
+      email: "alexey@example.com",
+      password: "password123",
+      roleId: teacherRole.id,
+      avatarUrl: "https://randomuser.me/api/portraits/men/67.jpg",
+    },
+  });
+  
+  const teacher5 = await prisma.user.create({
+    data: {
+      name: "Мария Петрова",
+      email: "maria@example.com",
+      password: "password123",
+      roleId: teacherRole.id,
+      avatarUrl: "https://randomuser.me/api/portraits/women/19.jpg",
+    },
+  });
   console.log("Roles, users, categories, subcategories, and courses have been created.");
 
   // Получаем популярные курсы
