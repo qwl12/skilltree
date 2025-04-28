@@ -2,8 +2,12 @@ import Footer from "@/components/Footer";
 import PopularAuthorCard from "@/components/PopularAuthors/AuthorCard";
 import PopularAuthors from "@/components/PopularAuthors/PopularAuthors";
 import PopularCourses from "@/components/PopularCourses/PopularCourses";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+const Home = async () => {
+  const session = await authOptions;
+  if(!session) redirect("/sign-in")
   return (
     <div className="flex flex-col min-h-screen bg-white">
 
@@ -18,3 +22,4 @@ export default function Home() {
     </div>
   );
 }
+export default Home;

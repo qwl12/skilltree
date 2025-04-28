@@ -1,5 +1,15 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
 // npx prisma db seed
+async function hashPassword(password: string) {
+
+  // НЕ ЗАБУДЬ ХЕШИРОВАНИЕ ДОДЕЛАТЬ
+  const hashedPassword = await bcrypt.hash(password, 10);
+  return hashedPassword;
+}
+
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -149,7 +159,7 @@ async function main() {
     data: {
       name: "Анна Иванова",
       email: "anna@example.com",
-      password: "password123", // В реальном проекте пароль хэшируй!
+      password: "hashedPassword1", 
       roleId: teacherRole.id,
       avatarUrl: "https://randomuser.me/api/portraits/women/45.jpg",
     },
@@ -159,7 +169,7 @@ async function main() {
     data: {
       name: "Дмитрий Смирнов",
       email: "dmitry@example.com",
-      password: "password123",
+      password: "hashedPassword",
       roleId: teacherRole.id,
       avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
     },
@@ -169,7 +179,7 @@ async function main() {
     data: {
       name: "Екатерина Сидорова",
       email: "ekaterina@example.com",
-      password: "password123",
+      password: "hashedPassword",
       roleId: teacherRole.id,
       avatarUrl: "https://randomuser.me/api/portraits/women/51.jpg",
     },
