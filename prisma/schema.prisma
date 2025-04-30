@@ -13,7 +13,6 @@ model User {
   email     String   @unique
   password  String
   roleId    String
-  avatarUrl String
   role      Role     @relation(fields: [roleId], references: [id])
   comments  Comment[]
   courses   Course[] @relation("TeacherCourses")
@@ -22,12 +21,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-
   followers   Follow[] @relation("followers")
   following   Follow[] @relation("following")
-
-
-
 }
 
 model Role {

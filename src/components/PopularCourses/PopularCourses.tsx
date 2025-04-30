@@ -9,7 +9,7 @@ interface Course {
   image: string;
   description: string;
   subscribers: string;
-  duration?: number; // duration может быть undefined
+  duration?: number; 
   teacher: {
     name: string;
   };

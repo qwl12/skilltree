@@ -1,9 +1,9 @@
-// /pages/api/popular-authors.ts
-import { prisma } from "@/lib/prisma"; // или откуда ты импортируешь prisma
+// /api/popular-authors.ts
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  // Найти id роли TEACHER
+
   const teacherRole = await prisma.role.findUnique({
     where: { type: "teacher" },
   });
@@ -12,17 +12,15 @@ export async function GET() {
     return NextResponse.json({ error: "Teacher role not found" }, { status: 404 });
   }
 
-  // Теперь найдем пользователей-учителей с подсчетом подписчиков
   const popularAuthors = await prisma.user.findMany({
     where: {
       roleId: teacherRole.id,
     },
     include: {
-      followers: true, // чтобы потом посчитать длину
+      followers: true, 
     },
   });
 
-  // Сортируем по количеству подписчиков
   const sortedAuthors = popularAuthors
     .map(author => ({
       id: author.id,

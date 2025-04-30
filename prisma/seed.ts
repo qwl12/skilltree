@@ -39,7 +39,7 @@ async function main() {
       email: "admin@admin.com",
       password: "securepassword",
       roleId: adminRole.id,
-      avatarUrl: "http://example.com/avatar.jpg",
+      image: "http://example.com/avatar.jpg",
     },
   });
 
@@ -49,7 +49,7 @@ async function main() {
       email: "student@student.com",
       password: "studentpassword",
       roleId: userRole.id,
-      avatarUrl: "http://example.com/avatar2.jpg",
+      image: "http://example.com/avatar2.jpg",
     },
   });
 
@@ -59,7 +59,7 @@ async function main() {
       email: "teacher@teacher.com",
       password: "teacherpassword",
       roleId: teacherRole.id,
-      avatarUrl: "http://example.com/avatar3.jpg",
+      image: "http://example.com/avatar3.jpg",
     },
   });
 
@@ -161,7 +161,7 @@ async function main() {
       email: "anna@example.com",
       password: "hashedPassword1", 
       roleId: teacherRole.id,
-      avatarUrl: "https://randomuser.me/api/portraits/women/45.jpg",
+      image: "https://randomuser.me/api/portraits/women/45.jpg",
     },
   });
   
@@ -171,7 +171,7 @@ async function main() {
       email: "dmitry@example.com",
       password: "hashedPassword",
       roleId: teacherRole.id,
-      avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+      image: "https://randomuser.me/api/portraits/men/32.jpg",
     },
   });
   
@@ -181,7 +181,7 @@ async function main() {
       email: "ekaterina@example.com",
       password: "hashedPassword",
       roleId: teacherRole.id,
-      avatarUrl: "https://randomuser.me/api/portraits/women/51.jpg",
+      image: "https://randomuser.me/api/portraits/women/51.jpg",
     },
   });
   
@@ -191,7 +191,7 @@ async function main() {
       email: "alexey@example.com",
       password: "password123",
       roleId: teacherRole.id,
-      avatarUrl: "https://randomuser.me/api/portraits/men/67.jpg",
+      image: "https://randomuser.me/api/portraits/men/67.jpg",
     },
   });
   
@@ -201,7 +201,7 @@ async function main() {
       email: "maria@example.com",
       password: "password123",
       roleId: teacherRole.id,
-      avatarUrl: "https://randomuser.me/api/portraits/women/19.jpg",
+      image: "https://randomuser.me/api/portraits/women/19.jpg",
     },
   });
   console.log("Roles, users, categories, subcategories, and courses have been created.");
