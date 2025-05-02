@@ -40,7 +40,7 @@ function Modal({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => 
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="bg-white rounded-xl p-6 w-full max-w-md relative"
+            className="bg-white rounded-xl p-8 w-full max-w-md relative"
             onClick={(e) => e.stopPropagation()}
           >
             {children}

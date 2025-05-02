@@ -8,12 +8,12 @@ const DashboardRedirect = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "loading") return; // Ждем, пока сессия загрузится
+    if (status === "loading") return; 
 
     if (!session) {
-      router.push("/login"); // Если нет сессии, перенаправляем на страницу входа
+      router.push("/login"); 
     } else {
-      // Перенаправляем в зависимости от роли
+
       if (session.user.role === "teacher") {
         router.push("/teacher/profile");
       } else if (session.user.role === "user") {

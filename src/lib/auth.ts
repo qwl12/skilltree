@@ -22,6 +22,7 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
+          include: { role: true },
         });
 
         if (!user) {
@@ -37,7 +38,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.roleId,
+          role: user.role.type,
         };
       },
     }),
@@ -89,7 +90,7 @@ export const authOptions: NextAuthOptions = {
         token.name = existingUser.name;
         token.email = existingUser.email;
         token.image = existingUser.image ?? undefined;
-        token.role = existingUser.roleId;
+        token.role = user.role; 
         token.provider = account.provider;
       }
 
@@ -107,9 +108,28 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
 
-    async redirect({ url, baseUrl }) {
-      return baseUrl; 
-    },
+   async redirect({ url, baseUrl }) {
+  const sessionUrl = new URL(url, baseUrl);
+
+  // Если пользователь переходит после логина
+  if (url === baseUrl || url === `${baseUrl}/login`) {
+    // Пробуем получить токен из cookies (в jwt ты уже положил роль)
+    const role = sessionUrl.searchParams.get("role");
+
+  
+    if (role === "teacher") {
+      return `${baseUrl}/teacher/profile`;
+    }
+
+    if (role === "user") {
+      return `${baseUrl}/student/profile`;
+    }
+
+    return `${baseUrl}/dashboard`; // fallback
+  }
+
+  return url;
+}
   },
 
   pages: {
