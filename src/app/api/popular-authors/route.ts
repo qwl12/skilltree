@@ -25,7 +25,7 @@ export async function GET() {
     .map(author => ({
       id: author.id,
       name: author.name,
-      avatarUrl: author.avatarUrl,
+      image: author.image,
       followersCount: author.followers.length,
     }))
     .sort((a, b) => b.followersCount - a.followersCount);

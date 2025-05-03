@@ -16,10 +16,7 @@ export async function GET(req: NextRequest) {
           contains: q,
           mode: "insensitive",
         },
-        description: {
-          contains: q,
-          mode: "insensitive",
-        },
+   
         
       },
     });
