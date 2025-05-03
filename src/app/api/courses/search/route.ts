@@ -1,29 +1,43 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; 
+
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const q = searchParams.get("q");
+  const query = searchParams.get('q')?.trim();
 
-  if (!q) {
-    return NextResponse.json({ error: "Query param 'q' is required" }, { status: 400 });
+  if (!query) {
+    return NextResponse.json([], { status: 200 });
   }
 
   try {
     const courses = await prisma.course.findMany({
       where: {
-        title: {
-          contains: q,
-          mode: "insensitive",
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } },
+          {
+            teacher: {
+              name: { contains: query, mode: 'insensitive' },
+            },
+          },
+        ],
+      },
+      include: {
+        teacher: {
+          select: { name: true },
         },
-   
-        
       },
     });
 
-    return NextResponse.json(courses);
+    return NextResponse.json(courses, { status: 200 });
   } catch (error) {
-    console.error("Search error:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error('Ошибка при поиске курсов:', error);
+    return NextResponse.json(
+      { error: 'Ошибка при выполнении поиска' },
+      { status: 500 }
+    );
   }
 }

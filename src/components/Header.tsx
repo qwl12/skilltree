@@ -2,11 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+
 import { useState, useEffect } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inria_Sans, Inika } from "next/font/google";
+import { Inria_Sans } from "next/font/google";
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
@@ -52,7 +52,8 @@ function Modal({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => 
 }
 
 const Header = () => {
-  const pathname = usePathname();
+  const { data: session, status } = useSession();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true); 
   return (
@@ -69,18 +70,33 @@ const Header = () => {
           <Link href="/create-course" className="text-black hover:text-green-700">Создать курс</Link>
         </nav>
       </div>
-
-      <nav className="space-x-7">
-        <button
-          onClick={() => {
-            setIsLoginMode(true);
-            setIsModalOpen(true);
-          }}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition"
-        >
-          Войти
-        </button>
+      <nav>
+        {status === "authenticated" ? (
+          <div className="flex items-center space-x-4">
+              
+            <Link href="/profile">
+            <span>{session.user?.name}</span>
+            </Link>
+            <Link href="/profile">
+            <Image
+                src={session.user.image || "/userProfile.png"}
+                alt="Аватар пользователя"
+                width={20}
+                height={10}
+                className="rounded-full w-full"
+              />
+            </Link>
+            <button onClick={() => signOut()} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition">
+              Выйти
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setIsModalOpen(true)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition">
+            Войти
+          </button>
+        )}
       </nav>
+     
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex flex-col gap-4 ">
