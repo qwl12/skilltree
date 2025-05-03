@@ -1,6 +1,6 @@
 import { signIn, getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/compat/router";
+import { useRouter } from 'next/navigation'
 
 const LoginForm = () => {
   const router = useRouter();
@@ -33,12 +33,12 @@ const LoginForm = () => {
     if (res?.error) {
       setError("Неверный email или пароль");
     } else {
-      // Ждём обновления сессии
+
       await new Promise((res) => setTimeout(res, 500));
       const session = await getSession();
 
       if (session?.user?.role === "teacher") {
-        router?.push("/dashboard/teacher");
+        router?.push("/dashboard/teacher") ;
       } else if (session?.user?.role === "user") {
         router?.push("/dashboard/student");
       } else {
@@ -69,6 +69,7 @@ const LoginForm = () => {
       />
       <button
         type="submit"
+        onClick={() => router.push('/dashboard')}
         className="bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
       >
         Войти

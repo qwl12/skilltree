@@ -1,4 +1,5 @@
-// src/pages/dashboard.tsx
+// дОДЕЛАЙ
+
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
@@ -14,11 +15,11 @@ const DashboardRedirect = () => {
       router.push("/login"); 
     } else {
 
-      if (session.user.role === "teacher") {
-        router.push("/teacher/profile");
-      } else if (session.user.role === "user") {
-        router.push("/student/profile");
-      }
+    if (session.user.role === "teacher") {
+      router.push("/teacher/profile");
+    } else if (session.user.role === "user") {
+      router.push("/student/profile");
+    }
     }
   }, [session, status, router]);
 
