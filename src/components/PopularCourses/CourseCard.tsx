@@ -31,7 +31,7 @@ export default function PopularCourseCard({ course }: CourseCardProps) {
         </div>
     <div className='flex flex-col gap-2 justify-between'>
     <p className="text-gray-600 text-sm mb-1">
-      <span className="font-medium">{course.teacher.name}</span>
+      <span className="font-medium">{course.teacher?.name}</span>
     </p>
     <div className="flex gap-2">
         <img

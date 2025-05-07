@@ -18,6 +18,7 @@ export async function GET(
       return NextResponse.json({ error: 'Курс не найден' }, { status: 404 });
     }
 
+    
     return NextResponse.json(course);
   } catch (error) {
     console.error('Ошибка при получении курса:', error);

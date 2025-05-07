@@ -17,17 +17,36 @@ interface Course {
   };
 
 }
-
+interface Subscription {
+  course: Course;
+}
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [myCourses, setMyCourses] = useState<Course[]>([]);
   const [recommendedCourses, setRecommendedCourses] = useState<Course[]>([]);
   const [lastCourse, setLastCourse] = useState<Course | null>(null);
-
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     if (status === 'authenticated') {
       // СДЕЛАТЬ АПИ
-      fetchMyCourses();
+      const fetchSubscriptions = async () => {
+        try {
+          const response = await fetch('/api/subscriptions');
+          if (!response.ok) {
+            throw new Error('Не удалось загрузить подписки');
+          }
+          const data = await response.json();
+          setSubscriptions(data);
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchSubscriptions();
       fetchRecommendedCourses();
       fetchLastCourse();
     }
@@ -101,12 +120,16 @@ export default function DashboardPage() {
 
       <div className="mb-8">
 
-        <h2 className='text-2xl font-bold mb-4'>Мои курсы</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {myCourses.map((course) => (
-            <CourseCard key={course.id} course={course} />
+      <h1>Мои подписки</h1>
+      {subscriptions.length === 0 ? (
+        <p>У вас нет подписок.</p>
+      ) : (
+        <div className="course-cards">
+          {subscriptions.map(({ course }) => (
+            <CourseCard key={course.id} course={course}  />
           ))}
         </div>
+      )}
       </div>
 
       <div >
