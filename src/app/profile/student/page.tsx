@@ -1,39 +1,75 @@
-// src/components/profile/student/StudentProfile.tsx
-'use client'
-import { useSession } from "next-auth/react";
-import Link from "next/link";
+'use client';
 
-const StudentProfile = () => {
-  const { data: session } = useSession();
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import AvatarUploader from '@/components/avatarUploader';
+import axios from 'axios';
+import VerifyEmailButton from '@/components/VerifyButton';
 
-  if (!session) {
-    return <div>Загрузка...</div>;
+
+export default function ProfilePage() {
+  const { data: session, status, update } = useSession();
+  const [name, setName] = useState('');
+  const [emailVerified, setEmailVerified] = useState(false);
+
+  useEffect(() => {
+    if (session?.user) {
+      setName(session.user.name || '');
+      setEmailVerified(!!session.user.emailVerified);
+      
+    }
+
+  }, [session]);
+
+  const handleNameUpdate = async () => {
+    try {
+      const response = await axios.post('/api/profile/update', { name });
+      if (response.status === 200) {
+        alert('Имя успешно обновлено');
+      } else {
+        alert('Ошибка при обновлении имени');
+      }
+    } catch (error) {
+      console.error('Ошибка при отправке запроса на обновление имени:', error);
+      alert('Ошибка при обновлении имени');
+    }
   }
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-semibold">Профиль студента: {session.user.name}</h1>
+  if (status === 'loading') return <p className="text-center text-gray-500">Загрузка...</p>;
 
-      <div className="mt-6">
-        <h2 className="text-xl font-medium">Мои курсы</h2>
-        <ul className="list-disc pl-6">
-          {/* Здесь будут курсы студента */}
-          <li>Курс 1</li>
-          <li>Курс 2</li>
-          <li>Курс 3</li>
-        </ul>
+  return (
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-xl mt-10 space-y-6 mb-36">
+      <h1 className="text-2xl font-bold text-center">Профиль студента</h1>
+      
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Имя:</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full px-4 py-2 border rounded-md focus:outline-none "
+        />
+        <button
+          onClick={handleNameUpdate}
+          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+        >
+          Сохранить
+        </button>
       </div>
 
-      <div className="mt-6">
-        <h2 className="text-xl font-medium">Личная информация</h2>
-        <p>Электронная почта: {session.user.email}</p>
-        <p>Роль: Студент</p>
-        <Link href="../dashboard/student">
-          <p className="text-green-600 hover:underline">Перейти к Dashboard</p>
-        </Link>
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Аватар:</label>
+        <AvatarUploader />
+      </div>
+
+      <div className="space-y-1">
+      <p>Электронная почта: {session?.user?.email}</p>
+        {session?.user?.emailVerified! ? (
+          <p className="text-green-600">Почта подтверждена</p>
+        ) : (
+          <VerifyEmailButton email={session?.user?.email ?? ''} />
+        )}
       </div>
     </div>
   );
-};
-
-export default StudentProfile;
+}

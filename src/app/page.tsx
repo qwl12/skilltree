@@ -1,5 +1,5 @@
 
-import Footer from "@/components/Footer";
+import Footer from "@/components/ui/footer";
 
 import PopularAuthors from "@/components/PopularAuthors/PopularAuthors";
 import PopularCourses from "@/components/PopularCourses/PopularCourses";
@@ -18,7 +18,7 @@ const Home = async () => {
           <PopularAuthors />
         </div>
       </main>
-      <Footer />
+
     </div>
   );
 }

@@ -24,9 +24,9 @@ interface PopularAuthorCardProps {
                 width={16}
                 height={16}
                 />
-            <p className="text-gray-600 text-sm ">
-            Подписчиков: {author.followersCount}
-            </p>
+                <p className="text-gray-600 text-sm ">
+                Подписчиков: {author.followersCount}
+                </p>
             </div>
             <div className="flex gap-2">
                <img

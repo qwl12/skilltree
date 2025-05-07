@@ -1,18 +1,20 @@
-// pages/profile.tsx
-'use client'
-import { useSession, getSession } from "next-auth/react";
+// src/app/dashboard/page.tsx
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 
+export default async function ProfilePage() {
 
-const Profile = () => {
-  const { data: session } = useSession();
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/");
+  }
+  const role = session.user.role;
 
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">Профиль пользователя</h1>
-      <p>Имя: {session?.user?.name}</p>
-      <p>Email: {session?.user?.email}</p>
-    </div>
-  );
-};
-
-export default Profile;
+  if (role === "user") {
+    redirect("/profile/student");
+  } else if (role === "teacher") {
+    redirect("/profile/teacher");
+  }
+  
+}

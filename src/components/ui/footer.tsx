@@ -45,7 +45,7 @@ const Footer = () => {
 
         {/* Socials */}
         <div>
-          <div className="flex space-x-4 text-l flex flex-col gap-2">
+          <div className="flex space-x-4 text-l  flex-col gap-2">
             <a href="#" className="text-white hover:text-blue-400 transition">
               +7 (911) 1776509
             </a>

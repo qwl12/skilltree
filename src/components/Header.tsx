@@ -68,6 +68,10 @@ const Header = () => {
           <Link href="/catalog" className="text-black hover:text-green-700">Каталог</Link>
           <Image src="/arrowdown.svg" alt="arrow" width={10} height={7} />
           <Link href="/create-course" className="text-black hover:text-green-700">Создать курс</Link>
+          
+          {status === "authenticated" ? (
+          <Link href="/dashboard" className="text-black hover:text-green-700">Мое обучение</Link>
+          ) : ('')}
         </nav>
       </div>
       <nav>

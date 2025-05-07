@@ -1,20 +1,124 @@
+'use client';
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import CourseCard from '@/components/PopularCourses/CourseCard';
 
-export default async function StudentDashboard() {
-  const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== "user") {
-    redirect("/login");
+interface Course {
+  id: string;
+  title: string;
+  image: string;
+  description: string;
+  subscribers: string;
+  duration?: number;
+  teacher: {
+    name: string;
+  };
+
+}
+
+export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const [myCourses, setMyCourses] = useState<Course[]>([]);
+  const [recommendedCourses, setRecommendedCourses] = useState<Course[]>([]);
+  const [lastCourse, setLastCourse] = useState<Course | null>(null);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      // СДЕЛАТЬ АПИ
+      fetchMyCourses();
+      fetchRecommendedCourses();
+      fetchLastCourse();
+    }
+  }, [status]);
+
+  const fetchMyCourses = async () => {
+
+    const courses: Course[] = [
+      {
+        id: '2',
+        title: 'Python основы',
+        description: 'Изучите основы React',
+        image: '/ones.svg',
+        subscribers: '100',
+        teacher: {name: 'teacher nastya'},
+        duration: 10,
+      },
+
+    ];
+    setMyCourses(courses);
+  };
+
+  const fetchRecommendedCourses = async () => {
+    const courses: Course[] = [
+      {
+        id: '2',
+        title: '1С для начинающих',
+        description: 'Изучите основы React',
+        image: '/ones.svg',
+        subscribers: '100',
+        teacher: {name: 'teacher nastya'},
+        duration: 10,
+      },
+
+    ];
+    setRecommendedCourses(courses);
+  };
+
+  const fetchLastCourse = async () => {
+    const course: Course = {
+        id: '2',
+        title: 'React для начинающих',
+        description: 'Изучите основы React',
+        image: '/Python.svg',
+        subscribers: '100',
+        teacher: {name: 'teacher nastya'},
+        duration: 10,
+
+    };
+    setLastCourse(course);
+  };
+
+  if (status === 'loading') {
+    return <p className="text-center mt-10">Загрузка...</p>;
+  }
+
+  if (status === 'unauthenticated') {
+    return <p className="text-center mt-10">Пожалуйста, войдите в систему, чтобы просмотреть дашборд.</p>;
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Панель студента</h1>
-      <p>Добро пожаловать, {session.user.name}!</p>
-      <p>Здесь вы можете просматривать свои курсы, прогресс и материалы.</p>
+    <div className="max-w-7xl mx-auto px-4 py-8 ">
+      <h1 className="text-3xl font-bold mb-6">Добро пожаловать, {session?.user.name}!</h1>
+    <div className='flex flex-wrap'>
+      {lastCourse && (
+        <div className="mb-8">
+          <h2 className='text-2xl font-bold mb-4'>Продолжить обучение</h2>
+          <CourseCard course={lastCourse} />
+        </div>
+      )}
+
+      <div className="mb-8">
+
+        <h2 className='text-2xl font-bold mb-4'>Мои курсы</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {myCourses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
+        </div>
+      </div>
+
+      <div >
+
+        <h2 className='text-2xl font-bold mb-4'>Рекомендуемые курсы</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {recommendedCourses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
+        </div>
+      </div>
+    </div>
     </div>
   );
 }

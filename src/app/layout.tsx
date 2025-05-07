@@ -5,6 +5,7 @@ import '../styles/tailwind.css';
 
 import { Inria_Sans } from "next/font/google";
 import AuthProvider from "@/components/sessionProvider";
+import Footer from "@/components/ui/footer";
 
 const inria = Inria_Sans({
   weight: ["400", "700"],
@@ -24,6 +25,7 @@ export default function RootLayout({
      <AuthProvider>
       <Header />
         {children}
+      <Footer />
       </AuthProvider>
       </body>
     </html>
