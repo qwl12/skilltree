@@ -47,14 +47,14 @@ model Follow {
 
 model Category {
   id           String        @id @default(cuid())
-  name         String
+  name         String        @unique
   subcategories Subcategory[]
   courses      Course[]
 }
 
 model Subcategory {
   id          String        @id @default(cuid())
-  name        String
+  name        String        @unique
   categoryId  String
   category    Category      @relation(fields: [categoryId], references: [id])
   courses     Course[]
@@ -65,7 +65,8 @@ model Course {
   title         String
   image         String
   description   String
-  aboutCourse   String
+  aboutCourse   String?
+  difficulty    String?
   categoryId    String?
   category      Category?    @relation(fields: [categoryId], references: [id])
   subcategoryId String?
@@ -87,6 +88,7 @@ model Course {
 model Module {
   id        String    @id @default(cuid())
   courseId  String
+  title     String?
   course    Course    @relation(fields: [courseId], references: [id])
   description String
   order     Int
@@ -118,15 +120,23 @@ model Test {
 }
 
 model Question {
-  id             String   @id @default(cuid())
-  testId         String
-  questionText   String
-  options        String[] // массив вариантов
-  correctAnswer  Int
-  test           Test     @relation(fields: [testId], references: [id])
-
-  @@unique([testId, questionText]) // уникальность для теста и текста вопроса
+  id           String   @id @default(cuid())
+  questionText String
+  testId       String
+  test         Test     @relation(fields: [testId], references: [id])
+  answers      Answer[] @relation("QuestionAnswers")
+  questionType String   
 }
+
+model Answer {
+  id           String  @id @default(cuid())
+  text         String
+  isCorrect    Boolean
+  questionId   String
+  question     Question @relation("QuestionAnswers", fields: [questionId], references: [id])
+}
+
+
 
 model Comment {
   id        String   @id @default(cuid()) // уникальный идентификатор комментария

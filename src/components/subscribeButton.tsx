@@ -23,7 +23,6 @@ export default function SubscribeButton({ courseId }: SubscribeButtonProps) {
       setLoading(true);
       const res = await axios.post('/api/subscribe', {
         courseId,
-        userId: session.user.id,
       });
 
       if (res.status === 200) {

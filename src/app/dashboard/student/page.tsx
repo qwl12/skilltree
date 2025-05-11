@@ -117,14 +117,13 @@ export default function DashboardPage() {
           <CourseCard course={lastCourse} />
         </div>
       )}
-
+  </div>
       <div className="mb-8">
-
-      <h1>Мои подписки</h1>
+      <h1 className='text-2xl font-bold mb-6'>Мои подписки</h1>
       {subscriptions.length === 0 ? (
         <p>У вас нет подписок.</p>
       ) : (
-        <div className="course-cards">
+        <div className="flex gap-4 flex-wrap">
           {subscriptions.map(({ course }) => (
             <CourseCard key={course.id} course={course}  />
           ))}
@@ -135,13 +134,13 @@ export default function DashboardPage() {
       <div >
 
         <h2 className='text-2xl font-bold mb-4'>Рекомендуемые курсы</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex gap-6">
           {recommendedCourses.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
         </div>
       </div>
     </div>
-    </div>
+ 
   );
 }

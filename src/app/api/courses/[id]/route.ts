@@ -10,8 +10,20 @@ export async function GET(
   const { id } = await context.params;
 
   try {
+  
     const course = await prisma.course.findUnique({
       where: { id },
+      include: {
+        teacher: true,
+        modules: {
+          orderBy: { order: 'asc' },
+          include: {
+            lectures: {
+              orderBy: { order: 'asc' },
+            },
+          },
+        },
+      }
     });
 
     if (!course) {
