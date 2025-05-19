@@ -49,53 +49,68 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user, account, profile }) {
-      if (account?.provider === "credentials" && user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.role = user.role;
-        token.provider = account.provider;
-      }
+async jwt({ token, user, account, profile }) {
+  // Если пользователь логинится через Credentials
+  if (account?.provider === "credentials" && user) {
+    token.id = user.id;
+    token.email = user.email;
+    token.name = user.name;
+    token.role = user.role;
+    token.provider = account.provider;
+  }
 
-      if (account?.provider === "github" && profile) {
-        const githubProfile = profile as {
-          login?: string;
-          name?: string;
-          email?: string;
-          avatar_url?: string;
-        };
+  // Если пользователь логинится через GitHub
+  if (account?.provider === "github" && profile) {
+    const githubProfile = profile as {
+      login?: string;
+      name?: string;
+      email?: string;
+      avatar_url?: string;
+    };
 
-        const githubEmail = githubProfile.email || user?.email;
+    const githubEmail = githubProfile.email || user?.email;
 
-        let existingUser = await prisma.user.findUnique({
-          where: { email: githubEmail ?? "" },
-        });
+    let existingUser = await prisma.user.findUnique({
+      where: { email: githubEmail ?? "" },
+    });
 
-        if (!existingUser) {
-   
-          existingUser = await prisma.user.create({
-            data: {
-              email: githubEmail!,
-              name: profile.name ?? githubProfile.login ?? "GitHub User",
-              image: githubProfile.avatar_url,
-              password: "", 
-              roleId: "user", 
-              emailVerified: new Date(),
-            },
-          });
-        }
+    if (!existingUser) {
+      existingUser = await prisma.user.create({
+        data: {
+          email: githubEmail!,
+          name: profile.name ?? githubProfile.login ?? "GitHub User",
+          image: githubProfile.avatar_url,
+          password: "", // пустой пароль
+          roleId: "user",
+          emailVerified: new Date(),
+        },
+      });
+    }
 
-        token.id = existingUser.id;
-        token.name = existingUser.name;
-        token.email = existingUser.email;
-        token.image = existingUser.image ?? undefined;
-        token.role = user.role; 
-        token.provider = account.provider;
-      }
+    token.id = existingUser.id;
+    token.name = existingUser.name;
+    token.email = existingUser.email;
+    token.image = existingUser.image ?? undefined;
+    token.role = existingUser.roleId;
+    token.provider = account.provider;
+  }
 
-      return token;
-    },
+  // 🔥 ВСЕГДА подтягиваем актуальные данные, если есть ID
+  if (token.id) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: token.id as string },
+    });
+
+    if (dbUser) {
+      token.name = dbUser.name;
+      token.email = dbUser.email;
+      token.image = dbUser.image ?? undefined;
+      token.role = dbUser.roleId;
+    }
+  }
+
+  return token;
+},
 
     async session({ session, token }) {
       if (session?.user) {
@@ -103,6 +118,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as string;
         session.user.email = token.email as string;
         session.user.image = token.image as string;
+
         session.user.name = token.name as string;
         session.user.provider = token.provider as string;
       }

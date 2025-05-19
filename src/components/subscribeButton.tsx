@@ -1,57 +1,45 @@
 'use client';
 
-import { useSession, signIn } from 'next-auth/react';
 import { useState } from 'react';
-import axios from 'axios';
 
-interface SubscribeButtonProps {
+export default function SubscribeButton({
+  courseId,
+  isSubscribed,
+  onSubscribe,
+}: {
   courseId: string;
-}
-
-export default function SubscribeButton({ courseId }: SubscribeButtonProps) {
-  const { data: session, status } = useSession();
+  isSubscribed: boolean;
+  onSubscribe: () => void;
+}) {
   const [loading, setLoading] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
 
   const handleSubscribe = async () => {
-    if (!session) {
-      signIn(); 
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await axios.post('/api/subscribe', {
-        courseId,
-      });
-
-      if (res.status === 200) {
-        setSubscribed(true);
-        alert('Вы успешно подписались на курс!');
-      } else {
-        alert('Ошибка при подписке на курс.');
-      }
-    } catch (error) {
-      console.error('Ошибка при подписке:', error);
-      alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    await fetch(`/api/courses/${courseId}/subscribe`, {
+      method: 'POST',
+    });
+    setLoading(false);
+    onSubscribe();
   };
 
-  if (status === 'loading') {
-    return <p>Загрузка...</p>;
+  if (isSubscribed) {
+    return (
+      <button
+        className="bg-gray-300 text-gray-700 px-4 py-2 rounded w-full"
+        disabled
+      >
+        Вы уже подписаны
+      </button>
+    );
   }
 
   return (
     <button
       onClick={handleSubscribe}
-      disabled={loading || subscribed}
-      className={`bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ${
-        subscribed ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
+      disabled={loading}
+      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full"
     >
-      {subscribed ? 'Вы подписаны' : 'Подписаться'}
+      {loading ? 'Подписываемся' : 'Подписаться'}
     </button>
   );
 }

@@ -118,9 +118,94 @@ if (!subcategory3) {
     },
   });
 }
-await prisma.question.deleteMany();
-await prisma.course.deleteMany();
+await prisma.answer.deleteMany({
+  where: {
+    questionId: { not: undefined },
+  },
+});
+
+// Теперь можно удалить вопросы
+await prisma.question.deleteMany({});
+
   // Создаем курсы 
+    const user = await prisma.user.create({
+    data: {
+      name: 'Иван Иванов',
+      email: 'ivan.ivanov@example.com',
+      password: 'password123', // Убедись, что используешь хешированный пароль
+      role: {
+        connect: { id: teacherRole.id }, // Подключаем роль через connect
+      },
+    },
+  });
+ const course = await prisma.course.create({
+    data: {
+      title: 'Веб-разработка для начинающих',
+      description: 'Этот курс посвящен основам веб-разработки, включая HTML, CSS и JavaScript.',
+      image: '',
+      teacher: {
+        connect: { id: user.id }, // Привязываем пользователя как преподавателя курса
+      },
+    },
+  });
+
+  console.log(`Курс создан: ${course.title}`);
+
+  // Создание модуля с обязательным полем 'order'
+  const module = await prisma.module.create({
+    data: {
+      title: 'Основы HTML и CSS',
+      description: 'Изучаем базовые технологии для создания веб-страниц.',
+      courseId: course.id,
+      order: 1, // Добавлено поле 'order'
+    },
+  });
+
+  console.log(`Модуль создан: ${module.title}`);
+
+  // Создание теста (без поля 'description', если оно не требуется в модели)
+  const test = await prisma.test.create({
+    data: {
+      title: 'Тест по HTML и CSS',
+      duration: 300, // продолжительность теста в секундах (5 минут)
+      moduleId: module.id,
+      // description: 'Проверка знаний основных принципов HTML и CSS.', // Убедись, что это поле существует в модели Test
+    },
+  });
+
+  console.log(`Тест создан: ${test.title}`);
+
+  // Добавление вопросов в тест
+  const question1 = await prisma.question.create({
+    data: {
+      questionText: 'Что такое HTML?',
+      questionType: 'multiple-choice',
+      testId: test.id,
+      answers: {
+        create: [
+          { text: 'Язык для создания стилей', isCorrect: false },
+          { text: 'Язык разметки гипертекста', isCorrect: true },
+          { text: 'Язык программирования', isCorrect: false },
+        ],
+      },
+    },
+  });
+
+  const question2 = await prisma.question.create({
+    data: {
+      questionText: 'Какой тег используется для создания ссылки в HTML?',
+      questionType: 'multiple-choice',
+      testId: test.id,
+      answers: {
+        create: [
+          { text: '<link>', isCorrect: false },
+          { text: '<a>', isCorrect: true },
+          { text: '<href>', isCorrect: false },
+        ],
+      },
+    },
+  });
+
   const coursesData = [
     {
       title: "Улучшение soft-skills",

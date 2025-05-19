@@ -23,6 +23,7 @@ model User {
   sessions      Session[]
   followers   Follow[] @relation("followers")
   following   Follow[] @relation("following")
+  testResults TestResult[]
 }
 
 model Role {
@@ -63,7 +64,7 @@ model Subcategory {
 model Course {
   id            String       @id @default(cuid())
   title         String
-  image         String
+  image         String?
   description   String
   aboutCourse   String?
   difficulty    String?
@@ -104,6 +105,7 @@ model Lecture {
   moduleId   String    // ID модуля, к которому относится лекция
   module     Module    @relation("ModuleLectures", fields: [moduleId], references: [id]) // связь с модулем
   comments   Comment[] // связь с комментариями, прикрепленными к лекции
+  fileUrl    String?
   files      File[]    @relation("LectureFile") // связь с файлами
 }
 
@@ -117,6 +119,7 @@ model Test {
   module    Module     @relation(fields: [moduleId], references: [id])
   questions Question[]
   duration  Int?       // длительность теста в минутах
+  testResults TestResult[]
 }
 
 model Question {
@@ -136,7 +139,21 @@ model Answer {
   question     Question @relation("QuestionAnswers", fields: [questionId], references: [id])
 }
 
+model TestResult {
+  id        String   @id @default(cuid())
+  userId    String
+  testId    String
+  score     Int
+  startedAt DateTime
+  finishedAt DateTime
+  passed  Boolean
+  duration Int
+  
+  user      User     @relation(fields: [userId], references: [id])
+  test      Test     @relation(fields: [testId], references: [id])
 
+    @@unique([userId, testId]) // добавление уникального индекса
+}
 
 model Comment {
   id        String   @id @default(cuid()) // уникальный идентификатор комментария

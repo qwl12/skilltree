@@ -85,9 +85,9 @@ const Header = () => {
             <Image
                 src={session.user.image || "/userProfile.png"}
                 alt="Аватар пользователя"
-                width={20}
-                height={10}
-                className="rounded-full w-full"
+                width={70}
+                height={20}
+                className="object-fit rounded-2xl"
               />
             </Link>
             <button onClick={() => signOut()} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition">

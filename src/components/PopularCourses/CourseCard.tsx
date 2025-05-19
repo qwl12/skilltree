@@ -24,7 +24,7 @@ export default function PopularCourseCard({ course }: CourseCardProps) {
           {course.title}
         </h3>
         <img
-          src={course.image}
+          src={course.image || '/placeholderCourse.png'}
           alt={course.title}
           className="w-20 h-20 object-cover rounded-xl "
         />

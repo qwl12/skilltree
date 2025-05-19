@@ -10,13 +10,13 @@ type QuestionType = 'single' | 'multiple' | 'input';
 
 const QuestionForm = ({ testId, onNext }: Props) => {
   const [questionText, setQuestionText] = useState('');
-  const [answerOptions, setAnswerOptions] = useState<string[]>(['']); // Для multiple answer
-  const [correctAnswers, setCorrectAnswers] = useState<boolean[]>([false]); // Для правильных ответов
-  const [questionType, setQuestionType] = useState<QuestionType>('single'); // Тип вопроса
+  const [answerOptions, setAnswerOptions] = useState<string[]>(['']); 
+  const [correctAnswers, setCorrectAnswers] = useState<boolean[]>([false]); 
+  const [questionType, setQuestionType] = useState<QuestionType>('single'); 
 
   const handleAddAnswerOption = () => {
     setAnswerOptions([...answerOptions, '']);
-    setCorrectAnswers([...correctAnswers, false]); // Для нового варианта добавляем флаг "неправильный"
+    setCorrectAnswers([...correctAnswers, false]); 
   };
 
   const handleRemoveAnswerOption = (index: number) => {
@@ -34,7 +34,7 @@ const QuestionForm = ({ testId, onNext }: Props) => {
 
   const handleCorrectAnswerChange = (index: number) => {
     const newCorrectAnswers = [...correctAnswers];
-    newCorrectAnswers[index] = !newCorrectAnswers[index]; // Меняем состояние для этой галочки
+    newCorrectAnswers[index] = !newCorrectAnswers[index]; 
     setCorrectAnswers(newCorrectAnswers);
   };
 
@@ -45,7 +45,7 @@ const QuestionForm = ({ testId, onNext }: Props) => {
     if (questionType === 'single' || questionType === 'multiple') {
       formattedAnswers = answerOptions.map((option, index) => ({
         text: option,
-        isCorrect: correctAnswers[index], // Используем значения из массива правильных ответов
+        isCorrect: correctAnswers[index], 
       }));
     } else {
       formattedAnswers = [{ text: answerOptions[0], isCorrect: true }];
@@ -70,7 +70,6 @@ const QuestionForm = ({ testId, onNext }: Props) => {
       return;
     }
 
-    // Передаем управление на следующий шаг, если необходимо
     onNext(testId);
   };
 

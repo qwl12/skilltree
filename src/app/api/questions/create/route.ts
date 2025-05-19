@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const question = await prisma.question.create({
       data: {
         questionText,
-        questionType, // теперь передаем questionType
+        questionType, 
         test: {
           connect: { id: testId },
         },
