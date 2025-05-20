@@ -12,9 +12,7 @@ const LoginForm = () => {
   useEffect(() => {
     const checkSession = async () => {
       const session = await getSession();
-      if (session?.user?.role === "teacher") {
-        router?.push("/dashboard/teacher");
-      } else if (session?.user?.role === "user") {
+    if (session?.user?.role === "user") {
         router?.push("/dashboard/student");
       }
     };

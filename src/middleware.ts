@@ -10,21 +10,27 @@ export default withAuth(
   ) {
     const token = req.nextauth.token;
 
-    if (token?.role === 'student') {
-      return NextResponse.redirect(new URL('/dashboard/student', req.url));
-    } else if (token?.role === 'teacher') {
-      return NextResponse.redirect(new URL('/dashboard/teacher', req.url));
-    } else {
-      return NextResponse.redirect(new URL('/', req.url));
+    if (!token) {
+      const url = new URL('/', req.url);
+      url.searchParams.set('authModal', 'true'); 
+      return NextResponse.redirect(url);
     }
+
+    return NextResponse.next(); 
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token }) => !!token, 
     },
   }
 );
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: [
+    '/create-course',
+    '/create-course/:path*',
+    '/dashboard/:path*',
+    '/profile',
+    '/courses/:id',
+  ],
 };

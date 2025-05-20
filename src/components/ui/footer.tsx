@@ -7,9 +7,9 @@ const inria = Inria_Sans({
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 py-12 mt-16">
+    <footer className="bg-gray-800 py-12 mt-35">
       <div className="max-w-7xl mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Brand */}
+
         <div>
         <Link rel="stylesheet" href="/" className={`${inria.className} text-3xl font-bold text-green-600 hover:text-green-700 transition`}>SkillTree</Link>
           <p className="text-sm text-white">
@@ -17,7 +17,6 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Navigation */}
         <div>
           <ul className="space-y-2">
             <li>
@@ -43,7 +42,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Socials */}
         <div>
           <div className="flex space-x-4 text-l  flex-col gap-2">
             <a href="#" className="text-white hover:text-blue-400 transition">
@@ -59,7 +57,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom */}
       <div className="border-t border-gray-700 mt-10 pt-6 text-center text-sm text-gray-500">
         © {new Date().getFullYear()} SkillTree. Все права защищены.
       </div>

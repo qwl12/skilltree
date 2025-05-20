@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-
   const teacherRole = await prisma.role.findUnique({
     where: { type: "teacher" },
   });
@@ -17,18 +16,24 @@ export async function GET() {
       roleId: teacherRole.id,
     },
     include: {
-      followers: true, 
+      followers: true,
+      courses: true,
     },
+    orderBy: {
+      followers: {
+        _count: "desc",
+      },
+    },
+    take: 6,
   });
 
-  const sortedAuthors = popularAuthors
-    .map(author => ({
-      id: author.id,
-      name: author.name,
-      image: author.image,
-      followersCount: author.followers.length,
-    }))
-    .sort((a, b) => b.followersCount - a.followersCount);
+  const result = popularAuthors.map((author) => ({
+    id: author.id,
+    name: author.name,
+    avatarUrl: author.image ?? "/userProfile.png",
+    followersCount: author.followers.length,
+    coursesCount: author.courses.length,
+  }));
 
-  return NextResponse.json(sortedAuthors);
+  return NextResponse.json(result);
 }

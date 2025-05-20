@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Inria_Sans } from "next/font/google";
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
+import { useSearchParams } from 'next/navigation';
 
 const inria = Inria_Sans({
   weight: ["400", "700"],
@@ -53,9 +54,16 @@ function Modal({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => 
 
 const Header = () => {
   const { data: session, status } = useSession();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true); 
+  
+ const searchParams = useSearchParams();
+const callbackUrl = searchParams.get('callbackUrl');
+useEffect(() => {
+  if (callbackUrl) {
+    setIsModalOpen(true);
+  }
+}, [callbackUrl]);
   return (
     <header className="bg-white shadow-md px-6 py-7 flex justify-around items-center">
       <div className="flex items-center">
@@ -68,20 +76,30 @@ const Header = () => {
           <Link href="/catalog" className="text-black hover:text-green-700">Каталог</Link>
           <Image src="/arrowdown.svg" alt="arrow" width={10} height={7} />
           <Link href="/create-course" className="text-black hover:text-green-700">Создать курс</Link>
-          
           {status === "authenticated" ? (
-          <Link href="/dashboard" className="text-black hover:text-green-700">Мое обучение</Link>
+          <Link href="/dashboard/student" className="text-black hover:text-green-700">Мое обучение</Link>
           ) : ('')}
+       
+            <Link href="/search" className="flex gap-2">
+              <Image
+              width={20}
+              height={20}
+              src={'/search.svg'}
+              alt='search'
+              />
+              Поиск
+          </Link>
         </nav>
+      
       </div>
       <nav>
         {status === "authenticated" ? (
           <div className="flex items-center space-x-4">
               
-            <Link href="/profile">
+            <Link href="/profile/student">
             <span>{session.user?.name}</span>
             </Link>
-            <Link href="/profile">
+            <Link href="/profile/student">
             <Image
                 src={session.user.image || "/userProfile.png"}
                 alt="Аватар пользователя"
@@ -90,6 +108,7 @@ const Header = () => {
                 className="object-fit rounded-2xl"
               />
             </Link>
+            
             <button onClick={() => signOut()} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition">
               Выйти
             </button>

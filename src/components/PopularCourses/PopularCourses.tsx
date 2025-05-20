@@ -8,7 +8,7 @@ interface Course {
   title: string;
   image: string;
   description: string;
-  subscribers: string;
+  subscribers: number;
   duration?: number; 
   teacher: {
     name: string;
@@ -20,9 +20,9 @@ export default function PopularCourses() {
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const res = await fetch("/api/popular-courses");
+      const res = await fetch("/api/courses/popular");
       const data = await res.json();
-      console.log("дата:", data); 
+      // console.log("дата:", data); 
       setCourses(data);
     };
     fetchCourses();

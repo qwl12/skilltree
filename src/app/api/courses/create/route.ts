@@ -29,7 +29,8 @@ export async function POST(req: Request) {
     const description = formData.get('description') as string;
     const difficulty = formData.get('difficulty') as string;
     const imageFile = formData.get('image') as File | null;
-
+    const durationRaw = formData.get('duration') as string;
+    const duration = parseInt(durationRaw, 10);
     let imagePath: string | null = null;
 
     if (imageFile && imageFile.size > 0) {
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
         title,
         description,
         difficulty,
+        duration,
         image: imagePath ?? '', // пустая строка, если нет изображения
         teacher: {
           connect: { id: user.id },

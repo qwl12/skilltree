@@ -50,7 +50,7 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
 async jwt({ token, user, account, profile }) {
-  // Если пользователь логинится через Credentials
+  // Если пользователь логинится через Mail
   if (account?.provider === "credentials" && user) {
     token.id = user.id;
     token.email = user.email;
@@ -80,7 +80,7 @@ async jwt({ token, user, account, profile }) {
           email: githubEmail!,
           name: profile.name ?? githubProfile.login ?? "GitHub User",
           image: githubProfile.avatar_url,
-          password: "", // пустой пароль
+          password: "", 
           roleId: "user",
           emailVerified: new Date(),
         },
@@ -95,7 +95,6 @@ async jwt({ token, user, account, profile }) {
     token.provider = account.provider;
   }
 
-  // 🔥 ВСЕГДА подтягиваем актуальные данные, если есть ID
   if (token.id) {
     const dbUser = await prisma.user.findUnique({
       where: { id: token.id as string },
@@ -128,21 +127,20 @@ async jwt({ token, user, account, profile }) {
    async redirect({ url, baseUrl }) {
   const sessionUrl = new URL(url, baseUrl);
 
-  // Если пользователь переходит после логина
   if (url === baseUrl || url === `${baseUrl}/login`) {
-    // Пробуем получить токен из cookies (в jwt ты уже положил роль)
+
     const role = sessionUrl.searchParams.get("role");
 
   
     if (role === "teacher") {
-      return `${baseUrl}/teacher/profile`;
+      return `${baseUrl}/profile/teacher`;
     }
 
     if (role === "user") {
-      return `${baseUrl}/student/profile`;
+      return `${baseUrl}/profile/student`;
     }
 
-    return `${baseUrl}/dashboard`; // fallback
+    return `${baseUrl}/dashboard/student`; 
   }
 
   return url;
@@ -150,8 +148,8 @@ async jwt({ token, user, account, profile }) {
   },
 
   pages: {
-    signIn: "/login", 
-    error: "/login?error=auth", 
+    signIn: "/", 
+    error: "/", 
   },
 
   session: {

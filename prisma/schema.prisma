@@ -24,6 +24,7 @@ model User {
   followers   Follow[] @relation("followers")
   following   Follow[] @relation("following")
   testResults TestResult[]
+  resetTokens             PasswordResetToken[]
 }
 
 model Role {
@@ -244,4 +245,12 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
  
+}
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  expires   DateTime
+  createdAt DateTime @default(now())
 }

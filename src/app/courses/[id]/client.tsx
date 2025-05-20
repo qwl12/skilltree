@@ -38,6 +38,7 @@ interface Course {
   updatedAt: Date;
   modules: Module[];
   isSubscribed: boolean;
+
   teacher: { name: string };
 }
 
@@ -120,7 +121,7 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
  const isAuthor = currentUserId === teacherId;
   return (
     <div className="max-w-5xl mx-auto p-6 mt-10 mb-36 flex gap-10 ">
-      {/* Левая часть */}
+  
       <div className='shadow-xl rounded-2xl  p-6'>
         {isEditing ? (
           <>
@@ -201,7 +202,7 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
             <div className={`mb-4 font-semibold ${getDifficultyColor()}`}>
               Сложность: {difficulty}
             </div>
-
+            <p className="mb-2 text-gray-600">Подписчиков: {course.subscribers}</p>
             <p className="mb-2">{description}</p>
             <p className="mb-2">Преподаватель: {teacher?.name}</p>
 

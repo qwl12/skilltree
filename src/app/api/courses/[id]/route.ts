@@ -34,10 +34,11 @@ export async function GET(
   }
 
 const isSubscribed = course.enrollments.some((s: { userId: string }) => s.userId === userId);
-
+const subscribers = course.enrollments.length;
   return Response.json({
     ...course,
     isSubscribed,
+    subscribers,
   });
 }
 

@@ -10,6 +10,7 @@ const CourseForm = ({ onNext }: Props) => {
     title: '',
     description: '',
     difficulty: '',
+    duration: '',
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -48,6 +49,7 @@ const [selectedTags, setSelectedTags] = useState<string[]>([]);
     formData.append('title', form.title);
     formData.append('description', form.description);
     formData.append('difficulty', form.difficulty);
+    formData.append('duration', form.duration);
     formData.append('tags', JSON.stringify(selectedTags));
     if (imageFile) {
       formData.append('image', imageFile);
@@ -115,7 +117,21 @@ const [selectedTags, setSelectedTags] = useState<string[]>([]);
           className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring focus:ring-gray-300 focus:outline-none"
         />
       </div>
-
+       <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Количество часов
+  </label>
+  <input
+    type="number"
+    name="duration"
+    placeholder="Например: 12"
+    min="1"
+    onChange={handleChange}
+    value={form.duration}
+    className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring focus:ring-gray-300 focus:outline-none"
+    required
+  />
+</div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Изображение курса
@@ -132,6 +148,7 @@ const [selectedTags, setSelectedTags] = useState<string[]>([]);
             hover:file:bg-green-100 cursor-pointer"
         />
       </div>
+      
      <div>
       <div className="flex items-center justify-between mb-1">
         <p className="font-medium">Теги</p>
@@ -142,6 +159,8 @@ const [selectedTags, setSelectedTags] = useState<string[]>([]);
         >
           Очистить
         </button>
+ 
+
       </div>
       <p className="text-sm text-gray-500 mb-2">
         Выберите до 7 тегов

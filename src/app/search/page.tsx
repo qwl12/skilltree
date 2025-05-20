@@ -1,13 +1,15 @@
-
 import SearchBar from '@/components/Searchbar';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 interface SearchPageProps {
   searchParams: {
     q?: string;
     tags?: string;
     page?: string;
+    sort?: 'popular' | 'newest' | 'duration' | 'title';
   };
 }
 
@@ -15,10 +17,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = searchParams.q || '';
   const tagString = searchParams.tags || '';
   const page = parseInt(searchParams.page || '1');
+  const sort = searchParams.sort || 'popular';
+
   const PAGE_SIZE = 10;
   const offset = (page - 1) * PAGE_SIZE;
 
-  const tags = tagString ? tagString.split(',') : [];
+  const tags = tagString ? tagString.split(',').filter(Boolean) : [];
+
+  let orderBy: Prisma.CourseOrderByWithRelationInput;
+  switch (sort) {
+    case 'newest':
+      orderBy = { createdAt: 'desc' };
+      break;
+    case 'duration':
+      orderBy = { duration: 'desc' };
+      break;
+    case 'title':
+      orderBy = { title: 'asc' };
+      break;
+    default:
+      orderBy = { subscribers: 'desc' };
+  }
 
   const filters: any[] = [];
 
@@ -57,6 +76,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         teacher: true,
         tags: { include: { tag: true } },
       },
+      orderBy,
       skip: offset,
       take: PAGE_SIZE,
     }),
@@ -80,19 +100,71 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   const hasMore = totalCourses > page * PAGE_SIZE;
 
+  const createTagLink = (tagToToggle: string) => {
+    const isSelected = tags.includes(tagToToggle);
+    const newTags = isSelected
+      ? tags.filter((t) => t !== tagToToggle)
+      : [...tags, tagToToggle];
+
+    return `/search?q=${query}&tags=${newTags.join(',')}&sort=${sort}&page=1`;
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      
       <h1 className="text-3xl font-bold">Поиск курсов</h1>
       <SearchBar />
-      
+
+      {/* Сортировка */}
+      <div className="flex items-center gap-4 mt-4 flex-wrap">
+        <span className="text-gray-600 text-sm">Сортировать по:</span>
+        {['popular', 'newest', 'duration', 'title'].map((type) => (
+          <Link
+            key={type}
+            href={{
+              pathname: '/search',
+              query: {
+                q: query,
+                tags: tagString,
+                page: '1',
+                sort: type,
+              },
+            }}
+          >
+            <button
+              className={`text-sm px-3 py-1 rounded ${
+                sort === type ? 'bg-blue-600 text-white' : 'bg-gray-100'
+              }`}
+            >
+              {type === 'popular'
+                ? 'Популярности'
+                : type === 'newest'
+                ? 'Новизне'
+                : type === 'duration'
+                ? 'Длительности'
+                : 'Названию'}
+            </button>
+          </Link>
+        ))}
+
+        {(query || tags.length > 0 || sort !== 'popular') && (
+          <Link href="/search">
+            <button className="text-sm text-red-600 underline">Сбросить фильтры</button>
+          </Link>
+        )}
+      </div>
+
+      {/* Популярные теги */}
       <div className="flex gap-2 flex-wrap text-sm">
         <p className="text-gray-600">Популярные теги:</p>
         {popularTags.map((tag) => (
           <Link
             key={tag.id}
-            href={`/search?tags=${tag.name}`}
-            className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full hover:bg-blue-200"
+            href={createTagLink(tag.name)}
+            className={`px-2 py-0.5 rounded-full hover:bg-blue-200 ${
+              tags.includes(tag.name)
+                ? 'bg-blue-600 text-white'
+                : 'bg-blue-100 text-blue-700'
+            }`}
           >
             #{tag.name}
           </Link>
@@ -100,6 +172,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
 
 
+      {/* Результаты */}
       {courses.length === 0 ? (
         <p>Ничего не найдено.</p>
       ) : (
@@ -150,7 +223,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             ))}
           </ul>
 
-          {/* Кнопка "Показать ещё" */}
+          {/* Показать ещё */}
           {hasMore && (
             <div className="flex justify-center mt-4">
               <Link
@@ -159,7 +232,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   query: {
                     q: query,
                     tags: tagString,
-                    page: page + 1,
+                    sort,
+                    page: String(page + 1),
                   },
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"

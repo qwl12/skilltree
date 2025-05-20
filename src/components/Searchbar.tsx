@@ -28,18 +28,18 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className=" flex items-center gap-10 justify-center ">
       <input
         type="text"
         value={query}
         onChange={e => setQuery(e.target.value)}
         placeholder="Введите запрос..."
-        className="w-full border p-2"
+        className="w-full border p-2 rounded"
       />
       
       <button
         onClick={handleSearch}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        className="bg-green-600 text-white px-4 py-2 rounded"
       >
         Найти
       </button>

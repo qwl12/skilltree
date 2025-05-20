@@ -1,3 +1,4 @@
+// lib/mailer.ts
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
@@ -5,8 +6,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: 'skilltree@mail.ru',
-    pass: '5cECVNc3Dwk239xYsjNQ',
+    user: process.env.EMAIL_USER || 'skilltree@mail.ru',
+    pass: process.env.EMAIL_PASS || '5cECVNc3Dwk239xYsjNQ',
   },
 });
 
@@ -14,7 +15,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify?token=${token}`;
 
   const mailOptions = {
-    from: '"SkillTree" <skilltree@mail.ru>',
+    from: `"SkillTree" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Подтверждение электронной почты',
     html: `
@@ -27,9 +28,33 @@ export async function sendVerificationEmail(email: string, token: string) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Письмо отправлено на ${email}`);
+    console.log(`Письмо подтверждения отправлено на ${email}`);
   } catch (error) {
-    console.error('Ошибка при отправке письма:', error);
+    console.error('Ошибка при отправке письма подтверждения:', error);
     throw new Error('Не удалось отправить письмо с подтверждением.');
+  }
+}
+
+export async function sendPasswordResetEmail(email: string, token: string) {
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+
+  const mailOptions = {
+    from: `"SkillTree" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: 'Сброс пароля',
+    html: `
+      <p>Вы запросили сброс пароля.</p>
+      <p>Чтобы установить новый пароль, перейдите по ссылке ниже:</p>
+      <a href="${resetUrl}">${resetUrl}</a>
+      <p>Ссылка активна в течение 1 часа.</p>
+    `,
+  };
+console.log(`🔗 Ссылка на сброс пароля: ${resetUrl}`);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Письмо для сброса пароля отправлено на ${email}`);
+  } catch (error) {
+    console.error('Ошибка при отправке письма для сброса пароля:', error);
+    throw new Error('Не удалось отправить письмо со ссылкой для сброса пароля.');
   }
 }

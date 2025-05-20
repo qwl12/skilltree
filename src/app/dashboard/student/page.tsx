@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import CourseCard from '@/components/PopularCourses/CourseCard';
+import RecommendedCourses from '@/components/recomendcourses';
 
 
 interface Course {
@@ -23,7 +24,7 @@ interface Subscription {
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [myCourses, setMyCourses] = useState<Course[]>([]);
-  const [recommendedCourses, setRecommendedCourses] = useState<Course[]>([]);
+
   const [lastCourse, setLastCourse] = useState<Course | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,7 +48,7 @@ export default function DashboardPage() {
       };
   
       fetchSubscriptions();
-      fetchRecommendedCourses();
+
       fetchLastCourse();
     }
   }, [status]);
@@ -69,21 +70,6 @@ export default function DashboardPage() {
     setMyCourses(courses);
   };
 
-  const fetchRecommendedCourses = async () => {
-    const courses: Course[] = [
-      {
-        id: '2',
-        title: '1С для начинающих',
-        description: 'Изучите основы React',
-        image: '/ones.svg',
-        subscribers: '100',
-        teacher: {name: 'teacher nastya'},
-        duration: 10,
-      },
-
-    ];
-    setRecommendedCourses(courses);
-  };
 
   const fetchLastCourse = async () => {
     const course: Course = {
@@ -135,9 +121,9 @@ export default function DashboardPage() {
 
         <h2 className='text-2xl font-bold mb-4'>Рекомендуемые курсы</h2>
         <div className="flex gap-6">
-          {recommendedCourses.map((course) => (
-            <CourseCard key={course.id} course={course} />
-          ))}
+          {session?.user?.id && (
+            <RecommendedCourses userId={session.user.id} />
+          )}
         </div>
       </div>
     </div>

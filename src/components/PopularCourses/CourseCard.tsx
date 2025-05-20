@@ -7,13 +7,14 @@ interface CourseCardProps {
     title: string;
     image: string;
     description: string;
-    subscribers: string;
+    subscribers: number; 
     duration?: number;
     teacher: {
       name: string;
     };
   };
 }
+
 
 export default function PopularCourseCard({ course }: CourseCardProps) {
   return (
