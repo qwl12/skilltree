@@ -47,6 +47,7 @@ let recommendedCourses: RecommendedCourse[] = [];
 
     recommendedCourses = await prisma.course.findMany({
       where: {
+        approved: true,
         tags: {
           some: {
             tag: {
@@ -73,6 +74,7 @@ let recommendedCourses: RecommendedCourse[] = [];
   if (recommendedCourses.length === 0) {
     recommendedCourses = await prisma.course.findMany({
       where: {
+        approved: true,
         enrollments: {
           none: {
             userId,
@@ -84,11 +86,13 @@ let recommendedCourses: RecommendedCourse[] = [];
           _count: 'desc',
         },
       },
-      take: 10,
+      take: 6,
       select: {
         id: true,
         title: true,
         image: true,
+        subscribers: true, 
+        duration: true,       
         tags: { select: { tag: true } },
       },
     });

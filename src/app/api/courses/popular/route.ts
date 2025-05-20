@@ -5,6 +5,9 @@ export async function GET() {
   try {
     const courses = await prisma.course.findMany({
       take: 6,
+      where: {
+        approved: true
+      },
       include: {
         teacher: {
           select: { name: true },
@@ -17,6 +20,7 @@ export async function GET() {
         enrollments: {
           _count: 'desc',
         },
+        
       },
     });
 

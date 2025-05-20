@@ -11,7 +11,7 @@ interface Course {
   title: string;
   image: string;
   description: string;
-  subscribers: string;
+  subscribers: number;
   duration?: number;
   teacher: {
     name: string;
@@ -53,23 +53,6 @@ export default function DashboardPage() {
     }
   }, [status]);
 
-  const fetchMyCourses = async () => {
-
-    const courses: Course[] = [
-      {
-        id: '2',
-        title: 'Python основы',
-        description: 'Изучите основы React',
-        image: '/ones.svg',
-        subscribers: '100',
-        teacher: {name: 'teacher nastya'},
-        duration: 10,
-      },
-
-    ];
-    setMyCourses(courses);
-  };
-
 
   const fetchLastCourse = async () => {
     const course: Course = {
@@ -77,7 +60,7 @@ export default function DashboardPage() {
         title: 'React для начинающих',
         description: 'Изучите основы React',
         image: '/Python.svg',
-        subscribers: '100',
+        subscribers: 100,
         teacher: {name: 'teacher nastya'},
         duration: 10,
 
@@ -119,7 +102,6 @@ export default function DashboardPage() {
 
       <div >
 
-        <h2 className='text-2xl font-bold mb-4'>Рекомендуемые курсы</h2>
         <div className="flex gap-6">
           {session?.user?.id && (
             <RecommendedCourses userId={session.user.id} />

@@ -55,7 +55,11 @@ export async function GET(req: NextRequest) {
     }
 
     const courses = await prisma.course.findMany({
-      where: andConditions.length > 0 ? { AND: andConditions } : undefined,
+       where: {
+    approved: true,
+      
+      ...andConditions.length > 0 ? { AND: andConditions } : undefined,
+       },
       include: {
         teacher: { select: { name: true } },
         tags: {
@@ -63,6 +67,7 @@ export async function GET(req: NextRequest) {
             tag: true,
           },
         },
+        
       },
     });
 

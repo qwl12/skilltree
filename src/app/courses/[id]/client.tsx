@@ -193,7 +193,7 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
 
             <div className="mb-4">
               <img
-                src={image || '/defaultCourseImage.png'}
+                src={image || '/placeholderCourse.png'}
                 alt="Course"
                 className="w-full h-40 object-cover rounded-xl"
               />

@@ -15,8 +15,8 @@ type Course = {
   title: string;
   image: string;
   tags: Tag[];
-  subscribers: string;
-  duration: string
+  subscribers: number;
+  duration: number;
 };
 
 const RecommendedCourses = ({ userId }: { userId: string }) => {
@@ -32,22 +32,22 @@ const RecommendedCourses = ({ userId }: { userId: string }) => {
   }, [userId]);
 
   return (
-    <div className="my-10">
-      <h2 className="text-xl font-bold mb-4">Рекомендуемые курсы</h2>
-      <div className="flex flex-wrap gap-5">
+    <div className="py-8 px-17">
+      <h2 className="text-3xl font-bold mb-8">Рекомендуемые курсы</h2>
+      <div className="flex flex-wrap justify-center gap-7">
         {courses.map(course => (
           <Link
             href={`/courses/${course.id}`}
             key={course.id}
-            className="p-4  rounded-xl hover:shadow-md min-w-100  gap-4 shadow-lg hover:shadow-xl/10 transition max-w-md w-90 flex inset-shadow-sm"
+            className="p-4  rounded-xl hover:shadow-md min-w-90  gap-4 shadow-lg hover:shadow-xl/10 transition w-60 flex inset-shadow-sm"
           >
             <img
               src={course.image || '/placeholderCourse.png'}
         
               alt={course.title}
-              className="max-w-50 h-40 object-fit rounded-xl mb-2"
+              className="max-w-40 h-40 object-fit rounded-xl mb-2"
             />
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 w-60'>
               <h3 className="font-semibold">{course.title}</h3>
               <p className="text-sm text-gray-500">
                 {course.tags.map((t) => `#${t.tag.name}`).join(' ')}

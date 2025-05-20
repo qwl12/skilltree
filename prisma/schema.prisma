@@ -68,6 +68,7 @@ model Course {
   image         String?
   description   String
   aboutCourse   String?
+  approved      Boolean @default(false)
   difficulty    String?
   categoryId    String?
   category      Category?    @relation(fields: [categoryId], references: [id])
@@ -91,7 +92,7 @@ model Module {
   id        String    @id @default(cuid())
   courseId  String
   title     String?
-  course    Course    @relation(fields: [courseId], references: [id])
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   description String
   order     Int
   lectures    Lecture[]  @relation("ModuleLectures") // связь с лекциями
@@ -104,7 +105,7 @@ model Lecture {
   content    String    // содержимое лекции
   order      Int       // порядок лекции в модуле
   moduleId   String    // ID модуля, к которому относится лекция
-  module     Module    @relation("ModuleLectures", fields: [moduleId], references: [id]) // связь с модулем
+  module     Module    @relation("ModuleLectures", fields: [moduleId], references: [id], onDelete: Cascade) // связь с модулем
   comments   Comment[] // связь с комментариями, прикрепленными к лекции
   fileUrl    String?
   files      File[]    @relation("LectureFile") // связь с файлами
@@ -117,7 +118,7 @@ model Test {
   id        String     @id @default(cuid())
   title     String
   moduleId  String
-  module    Module     @relation(fields: [moduleId], references: [id])
+  module    Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   questions Question[]
   duration  Int?       // длительность теста в минутах
   testResults TestResult[]
@@ -127,7 +128,7 @@ model Question {
   id           String   @id @default(cuid())
   questionText String
   testId       String
-  test         Test     @relation(fields: [testId], references: [id])
+  test         Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
   answers      Answer[] @relation("QuestionAnswers")
   questionType String   
 }
@@ -137,7 +138,7 @@ model Answer {
   text         String
   isCorrect    Boolean
   questionId   String
-  question     Question @relation("QuestionAnswers", fields: [questionId], references: [id])
+  question     Question @relation("QuestionAnswers", fields: [questionId], references: [id], onDelete: Cascade)
 }
 
 model TestResult {
@@ -161,7 +162,7 @@ model Comment {
   content   String   // содержимое комментария
   createdAt DateTime @default(now()) // дата создания комментария
   courseId  String   // ID курса, к которому относится комментарий
-  course    Course   @relation(fields: [courseId], references: [id]) // связь с курсом
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade) // связь с курсом
   lectureId String?  // ID лекции (если комментарий относится к лекции)
   lecture   Lecture? @relation(fields: [lectureId], references: [id]) // связь с лекцией (необязательное)
   userId    String   // ID пользователя, который оставил комментарий
@@ -175,7 +176,7 @@ model File {
   originalName String   // оригинальное имя файла
   uploadedAt   DateTime @default(now()) // дата загрузки файла
   courseId     String?  // ID курса (если файл относится к курсу)
-  course       Course?  @relation(fields: [courseId], references: [id]) // связь с таблицей Course (если файл относится к курсу)
+  course       Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade) // связь с таблицей Course (если файл относится к курсу)
   lectureId    String?  // ID лекции (если файл относится к лекции)
   lecture      Lecture? @relation("LectureFile", fields: [lectureId], references: [id]) // связь с таблицей Lecture (если файл относится к лекции)
 }
@@ -187,7 +188,7 @@ model Enrollment {
   courseId   String
   enrolledAt DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id])
-  course     Course   @relation(fields: [courseId], references: [id])
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   
   @@unique([userId, courseId])  // уникальность для пары userId и courseId
 }
@@ -202,7 +203,7 @@ model CourseTag {
   id       String  @id @default(cuid())
   courseId String
   tagId    String
-  course   Course @relation(fields: [courseId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   tag      Tag    @relation(fields: [tagId], references: [id])
 
   @@unique([courseId, tagId])  // составной уникальный индекс
