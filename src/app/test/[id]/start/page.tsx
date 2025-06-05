@@ -1,128 +1,60 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+// app/tests/[id]/start/page.tsx
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
 
-type Answer = {
-  id: string;
-  text: string;
+type Props = {
+  params: { id: string };
 };
 
-type Question = {
-  id: string;
-  questionText: string;
-  questionType: string; // может быть 'single-choice', 'multiple-choice', 'input'
-  answers: Answer[];
-};
+export default async function TestStartPage({ params }: Props) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect('/');
 
-export default function TestStartPage({ params }: { params: { testId: string } }) {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
-  const [startedAt] = useState(new Date().toISOString());
-  const router = useRouter();
+  const testId = params.id;
+  const userId = session.user.id;
 
-  const { testId } = params;
+  const test = await prisma.test.findUnique({
+    where: { id: testId },
+    include: {
+      testResults: {
+        where: { userId },
+        select: { id: true },
+      },
+    },
+  });
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      const res = await fetch(`/api/tests/${testId}/questions`);
-      const data = await res.json();
-      setQuestions(data);
-    };
+  if (!test) return notFound();
 
-    fetchQuestions();
-  }, [testId]);
-
-  const handleChange = (questionId: string, answer: any) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionId]: answer,
-    }));
-  };
-
-  const handleSubmit = async () => {
-    const finishedAt = new Date().toISOString();
-
-    // 🔧 Преобразуем ответы в массив
-    const formattedAnswers = Object.entries(userAnswers).map(([questionId, answer]) => {
-      if (Array.isArray(answer)) {
-        return { questionId, values: answer };
-      } else {
-        return { questionId, value: answer };
-      }
-    });
-
-    const res = await fetch(`/api/tests/${testId}/submit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        answers: formattedAnswers,
-        startedAt,
-        finishedAt,
-      }),
-    });
-
-    const result = await res.json();
-    router.push(`/test/${testId}/result?resultId=${result.result.id}`);
-  };
+  const hasAttempt = test.testResults.length > 0;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">Прохождение теста</h1>
-      {questions.map((q) => (
-        <div key={q.id}>
-          <p className="font-semibold">{q.questionText}</p>
+    <div className="max-w-2xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-bold mb-6">{test.title}</h1>
 
-          {(q.questionType === 'single' || q.questionType === 'single-choice') &&
-            q.answers.map((a) => (
-              <label key={a.id} className="block">
-                <input
-                  type="radio"
-                  name={q.id}
-                  value={a.id}
-                  checked={userAnswers[q.id] === a.id}
-                  onChange={() => handleChange(q.id, a.id)}
-                />{' '}
-                {a.text}
-              </label>
-            ))}
+      <div className="text-gray-700 mb-4">
+        <p className="mb-2">
+          <strong>Длительность:</strong>{' '}
+          {test.duration ? `${test.duration} мин` : 'Не указана'}
+        </p>
+        <p>
+          <strong>Попыток:</strong>{' '}
+          {hasAttempt ? '1 (уже проходили)' : '0 (ещё не проходили)'}
+        </p>
+      </div>
 
-          {(q.questionType === 'multiple' || q.questionType === 'multiple-choice') &&
-            q.answers.map((a) => (
-              <label key={a.id} className="block">
-                <input
-                  type="checkbox"
-                  checked={userAnswers[q.id]?.includes(a.id) || false}
-                  onChange={() => {
-                    const selected = userAnswers[q.id] || [];
-                    handleChange(
-                      q.id,
-                      selected.includes(a.id)
-                        ? selected.filter((id: string) => id !== a.id)
-                        : [...selected, a.id]
-                    );
-                  }}
-                />{' '}
-                {a.text}
-              </label>
-            ))}
-
-          {q.questionType === 'input' && (
-            <input
-              type="text"
-              value={userAnswers[q.id] || ''}
-              onChange={(e) => handleChange(q.id, e.target.value)}
-              className="border p-1 mt-1"
-            />
-          )}
-        </div>
-      ))}
-
-      <button
-        onClick={handleSubmit}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+      <Link
+        href={`/test/${testId}/solve`}
+        className={`inline-block px-6 py-3 mt-4 rounded-md font-medium transition ${
+          hasAttempt
+            ? 'bg-gray-400 cursor-not-allowed text-white'
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
+        }`}
       >
-        Завершить тест
-      </button>
+        {hasAttempt ? 'Тест уже пройден' : 'Начать тест'}
+      </Link>
     </div>
   );
 }

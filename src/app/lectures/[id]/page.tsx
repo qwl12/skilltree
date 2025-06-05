@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 
 import Markdown from '@uiw/react-markdown-preview';
+import { CommentList } from '@/components/comments/CommentList';
 
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
@@ -151,6 +152,10 @@ export default function LecturePage() {
               Редактировать
             </button>
           )}
+
+           <div className='max-w-2xl mx-auto p-6 '>
+              <CommentList courseId={lecture.module?.course?.id} lectureId={lecture.id} />
+              </div>
         </>
       )}
     </div>

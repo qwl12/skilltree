@@ -1,3 +1,4 @@
+// src/app/api/test/[id]/submit/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -77,17 +78,25 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const duration = new Date(finishedAt).getTime() - new Date(startedAt).getTime();
     const passed = score >= Math.ceil(totalQuestions * 0.6); // проходной балл 60%
 
-    const result = await prisma.testResult.create({
-      data: {
-        testId,
-        userId: user.id,
-        score,
-        startedAt: new Date(startedAt),
-        finishedAt: new Date(finishedAt),
-        duration,
-        passed,
-      },
-    });
+
+const existingResult = await prisma.testResult.findUnique({
+  where: {
+    testId_userId: { testId, userId: user.id },
+  },
+});
+
+if (existingResult) {
+  return NextResponse.json({ message: 'Результат уже существует', result: existingResult });
+}
+
+ const result = await prisma.testResult.create({
+  data: {
+    testId,
+    userId: user.id,
+    score,
+    createdAt: new Date(startedAt),
+  },
+});
 console.log(answers, startedAt, finishedAt)
 console.log(testId, user)
     return NextResponse.json({ message: 'Результат сохранён', result });

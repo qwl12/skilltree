@@ -42,7 +42,7 @@ export default function PopularCourseCard({ course }: CourseCardProps) {
         height={16}
         />
         <p className="text-gray-600 text-sm ">
-         {course.subscribers}
+         {course.subscribers ?? 0}
         </p>
   
         <img
@@ -52,7 +52,7 @@ export default function PopularCourseCard({ course }: CourseCardProps) {
         height={16}
         />
         <p className="text-gray-600 text-sm ">
-         {course.duration} ч.
+         {course.duration?? '-'} ч.
         </p>
     </div>
 

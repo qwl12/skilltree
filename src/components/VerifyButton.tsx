@@ -21,7 +21,7 @@ const VerifyEmailButton = ({ email }: { email: string }) => {
 
   return (
     <div>
-      <button onClick={sendVerification} disabled={loading}>
+      <button onClick={sendVerification} disabled={loading} className="text-blue-600 font-medium hover:cursor-pointer">
         {loading ? 'Отправка...' : 'Подтвердить электронную почту'}
       </button>
       {message && <p>{message}</p>}

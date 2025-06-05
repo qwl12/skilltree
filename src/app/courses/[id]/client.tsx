@@ -6,6 +6,9 @@ import SubscribeButton from '@/components/subscribeButton';
 import Link from 'next/link';
 import MDEditor from '@uiw/react-md-editor';
 import Markdown from '@uiw/react-markdown-preview';
+import { CommentList } from '@/components/comments/CommentList';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 
 interface Lecture {
@@ -51,10 +54,44 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
   const [isSubscribed, setIsSubscribed] = useState(course.isSubscribed);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedCourse, setUpdatedCourse] = useState(course);
-
-
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const handleEdit = () => {
     setIsEditing(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+
+      setSelectedImage(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+
+  const handleImageUpdate = async () => {
+    if (!selectedImage) return;
+
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('image', selectedImage);
+
+    const res = await fetch(`/api/courses/${course.id}/update-image`, {
+      method: 'PUT',
+      body: formData,
+    });
+
+    if (res.ok) {
+      router.refresh(); 
+    } else {
+      const error = await res.text();
+      console.error('Ошибка загрузки изображения:', error);
+    }
+
+    setLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -120,9 +157,9 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
   } = updatedCourse;
  const isAuthor = currentUserId === teacherId;
   return (
-    <div className="max-w-5xl mx-auto p-6 mt-10 mb-36 flex gap-10 ">
-  
-      <div className='shadow-xl rounded-2xl  p-6'>
+    <div >
+      <div className="max-w-2xl mx-auto p-6 mt-10 mb-36 flex gap-10">
+      <div className='shadow-xl rounded-2xl  p-6 min-w-85'>
         {isEditing ? (
           <>
             <input
@@ -130,10 +167,53 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
               name="title"
               value={title}
               onChange={handleChange}
-              className="text-3xl font-bold mb-2 p-2 border rounded-md"
+              className="text-2xl font-bold mb-2 p-2 border rounded-md"
             />
 
-         
+          <div className="max-w-3xl mx-auto p-6 space-y-6">
+
+      
+        <p className="mb-2 font-medium">Текущее изображение:</p>
+        {course.image ? (
+          <Image
+            src={course.image}
+            alt="Изображение курса"
+            width={400}
+            height={250}
+            className="rounded-xl object-cover"
+          />
+        ) : (
+          <p className="text-gray-500">Изображение не загружено</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Обновить изображение курса
+        </label>
+        <input type="file" accept="image/*" onChange={handleFileChange} />
+
+        {preview && (
+          <div className="mt-4">
+            <p className="text-sm text-gray-500 mb-1">Предпросмотр:</p>
+            <Image
+              src={preview}
+              alt="Предпросмотр"
+              width={400}
+              height={250}
+              className="rounded-xl object-cover"
+            />
+          </div>
+        )}
+
+        <button
+          onClick={handleImageUpdate}
+          disabled={loading || !selectedImage}
+          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
+        >
+          {loading ? 'Загрузка...' : 'Обновить изображение'}
+        </button>
+      </div>
 
             <div className="mb-4">
               <label htmlFor="difficulty" className="font-semibold">
@@ -170,10 +250,10 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
               </label>
               <MDEditor 
                 style={{
-                    backgroundColor: '#f9f9f9',  
+
                     padding: '1.5rem',
                     borderRadius: '8px',
-                    color: '#333',
+         
                 }}
 
                 className="rounded-md shadow"
@@ -219,16 +299,18 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
                 >
               Редактировать
             </button> )}
+             
           </>
         )}
       </div>
 
       {/* Правая часть */}
-      <div className='w-full'>
+      <div className='w-full min-w-200'>
         <h2 className="text-2xl font-semibold mb-2">О курсе</h2>
-        <div className="p-4 bg-gray-50 rounded-xl">
+        <div className="p-4 bg-gray-50 rounded-xl max-w-128">
           <Markdown 
               style={{
+
                 backgroundColor: '#f9f9f9',
                 color: '#333',
               }}
@@ -256,6 +338,10 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
           </div>
         ))}
       </div>
+     
     </div>
+   
+    </div>
+    
   );
 }

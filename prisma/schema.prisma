@@ -25,6 +25,7 @@ model User {
   following   Follow[] @relation("following")
   testResults TestResult[]
   resetTokens             PasswordResetToken[]
+  votes      CommentVote[]
 }
 
 model Role {
@@ -123,7 +124,6 @@ model Test {
   duration  Int?       // длительность теста в минутах
   testResults TestResult[]
 }
-
 model Question {
   id           String   @id @default(cuid())
   questionText String
@@ -131,6 +131,7 @@ model Question {
   test         Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
   answers      Answer[] @relation("QuestionAnswers")
   questionType String   
+  userAnswers  UserAnswer[] // 🔧 добавили обратную связь
 }
 
 model Answer {
@@ -143,32 +144,55 @@ model Answer {
 
 model TestResult {
   id        String   @id @default(cuid())
-  userId    String
-  testId    String
-  score     Int
-  startedAt DateTime
-  finishedAt DateTime
-  passed  Boolean
-  duration Int
-  
-  user      User     @relation(fields: [userId], references: [id])
   test      Test     @relation(fields: [testId], references: [id])
+  testId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  score     Int
+  createdAt DateTime @default(now())
+  answers   UserAnswer[]
 
-    @@unique([userId, testId]) // добавление уникального индекса
+  @@unique([testId, userId], name: "testId_userId")
 }
+
+model UserAnswer {
+  id            String      @id @default(cuid())
+  result        TestResult  @relation(fields: [resultId], references: [id])
+  resultId      String
+  question      Question    @relation(fields: [questionId], references: [id])
+  questionId    String
+  selectedIds   String[]    // для multiple/single
+  inputAnswer   String?     // для input
+}
+
 
 model Comment {
-  id        String   @id @default(cuid()) // уникальный идентификатор комментария
-  content   String   // содержимое комментария
-  createdAt DateTime @default(now()) // дата создания комментария
-  courseId  String   // ID курса, к которому относится комментарий
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade) // связь с курсом
-  lectureId String?  // ID лекции (если комментарий относится к лекции)
-  lecture   Lecture? @relation(fields: [lectureId], references: [id]) // связь с лекцией (необязательное)
-  userId    String   // ID пользователя, который оставил комментарий
-  user      User     @relation(fields: [userId], references: [id]) // связь с пользователем
+  id         String     @id @default(cuid())
+  content    String
+  createdAt  DateTime   @default(now())
+  courseId   String
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lectureId  String?
+  lecture    Lecture?   @relation(fields: [lectureId], references: [id])
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  parentId   String?    
+  parent     Comment?   @relation("CommentReplies", fields: [parentId], references: [id])
+  replies    Comment[]  @relation("CommentReplies")
+  votes      CommentVote[]
 }
 
+model CommentVote {
+  id         String   @id @default(cuid())
+  userId     String
+  commentId  String
+  value      Int      // +1 или -1
+
+  user       User     @relation(fields: [userId], references: [id])
+  comment    Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+}
 
 model File {
   id           String   @id @default(cuid()) // уникальный идентификатор файла

@@ -78,10 +78,7 @@ export default function ProfilePage() {
             className="text-sm text-gray-600 file:bg-blue-500 file:text-white file:rounded-md file:px-3 file:py-1 file:cursor-pointer"
           />
       </div>
-<div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-2xl  space-y-8">  
-
-      
-
+      <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-2xl  space-y-8">  
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">Отображаемое имя:</label>
         <input
@@ -97,15 +94,18 @@ export default function ProfilePage() {
           Сохранить имя
         </button>
       </div>
-
       <div className="space-y-2">
         <p className="text-gray-700 font-semibold">
           Электронная почта: <span className="font-normal">{session?.user?.email}</span>
         </p>
+
         {emailVerified ? (
-          <p className="text-green-600 font-medium">Почта подтверждена</p>
+          <p className="text-green-600 font-medium">Почта подтверждена ✅</p>
         ) : (
-          <VerifyEmailButton email={session?.user?.email ?? ''} />
+          <>
+
+            <VerifyEmailButton email={session?.user?.email ?? ''}  />
+          </>
         )}
       </div>
 

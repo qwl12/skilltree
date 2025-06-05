@@ -39,9 +39,7 @@ const LoginForm = () => {
         router?.push("/dashboard/teacher") ;
       } else if (session?.user?.role === "user") {
         router?.push("/dashboard/student");
-      } else {
-        setError("Неизвестная роль пользователя");
-      }
+      } 
     }
   };
 
