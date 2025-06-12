@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         description,
         difficulty,
         duration,
-        image: imagePath ?? '', // пустая строка, если нет изображения
+        image: imagePath ?? '', 
         teacher: {
           connect: { id: user.id },
         },

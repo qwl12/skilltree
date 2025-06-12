@@ -6,8 +6,8 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+req: NextRequest,
+context: { params: Promise<{ testId: string }> }  
 ) {
   const session = await getServerSession(authOptions);
 
@@ -15,7 +15,7 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const testId = params.id;
+  const testId = (await context.params).testId;
 
   if (!testId) {
     return NextResponse.json({ error: 'Test ID is required' }, { status: 400 });

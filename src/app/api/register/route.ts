@@ -18,7 +18,6 @@ export async function POST(req: Request) {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Получаем id роли "student"
   const studentRole = await prisma.role.findUnique({
     where: { type: "user" },
   });

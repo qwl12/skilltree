@@ -1,12 +1,12 @@
 // /app/api/questions/[questionId]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function PUT(
-  req: Request,
-  { params }: { params: { questionId: string } }
+  req: NextRequest,
+  context: { params: Promise<{ questionId: string }> }
 ) {
-  const { questionId } = params;
+  const { questionId } = await context.params;
 
   try {
     const body = await req.json();

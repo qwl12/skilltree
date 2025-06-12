@@ -41,7 +41,7 @@ useEffect(() => {
 
     try {
       const data = JSON.parse(text);
-      console.log('Полученные данные:', data); // 🔍 Добавим лог
+      console.log('Полученные данные:', data);
 
       if (!data.questions || !Array.isArray(data.questions)) {
         console.error('Неверная структура:', data);

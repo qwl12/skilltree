@@ -15,8 +15,6 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
 
   useEffect(() => {
     const fetchData = async () => {
-
-
       // Получаем тест по ID
       const testRes = await prisma.test.findUnique({
         where: { id: testId },

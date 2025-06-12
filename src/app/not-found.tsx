@@ -1,6 +1,21 @@
-export default function notfound() {
-    return <div>
-        <h2>not found</h2>
-    
-    </div>;
+'use client';
+
+import Header from '@/components/Header';
+import Footer from '@/components/ui/footer';
+import { Suspense } from 'react';
+
+export default function NotFound() {
+  return (
+    <>
+      <Suspense fallback={<div>Loading header...</div>}>
+        <Header />
+      </Suspense>
+
+      <div>
+        <h2>Not Found</h2>
+      </div>
+
+      <Footer />
+    </>
+  );
 }

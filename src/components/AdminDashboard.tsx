@@ -52,15 +52,15 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Неодобренные курсы</h1>
+      <h1 className="text-2xl font-bold mb-4 ml-200">Неодобренные курсы</h1>
       {courses.length === 0 ? (
         <p>Нет курсов на модерации.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-4 flex flex-col flex-wrap min-w-100">
           {courses.map(course => (
             <li
               key={course.id}
-              className="border p-4 rounded-xl shadow-md bg-white"
+              className="border p-4 mx-auto max-w-300 min-w-150 rounded-xl shadow-md bg-white"
             >
               <h2 className="text-xl font-semibold">{course.title}</h2>
               <p className="text-sm text-gray-500">

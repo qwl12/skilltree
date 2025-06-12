@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import QuestionForm from '@/components/QuestionForm';
 import { useRouter } from 'next/navigation';
 
@@ -31,8 +31,10 @@ const CreateQuestionsPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h2 className="text-xl font-bold">Создание вопросов для теста</h2>
-      <QuestionForm testId={testId} onNext={handleNext} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <h2 className="text-xl font-bold">Создание вопросов для теста</h2>
+        <QuestionForm testId={testId} onNext={handleNext} />
+      </Suspense>
     </div>
   );
 };

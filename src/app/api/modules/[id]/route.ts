@@ -1,13 +1,14 @@
 import { prisma } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
 
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest,
+  context: { params: Promise<{ id: string }>}) {
   try {
     const module = await prisma.module.findUnique({
-      where: { id: params.id },
+      where: { id: (await context.params).id },
        include: {
         lectures: true,
         tests: true, // ← добавь это!

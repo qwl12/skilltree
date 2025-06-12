@@ -210,7 +210,7 @@ export const CommentList = ({ courseId, lectureId }: CommentListProps) => {
         const userVote = (c.votes || []).find((v) => v.userId === session?.user.id)?.value;
 
         return (
-          <div key={c.id} className="border-t pt-4">
+          <div key={c.id} className="shadow-md p-4 rounded">
             <p className="font-medium">{c.user.name}</p>
             <p className="text-sm text-gray-600">{new Date(c.createdAt).toLocaleString()}</p>
             <div className="mt-1">{renderText(c.content, c.id)}</div>

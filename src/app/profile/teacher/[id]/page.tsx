@@ -1,19 +1,17 @@
-// app/profile/teacher/[id]/page.tsx
-
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import CourseListClient from "./CourseListClient";
+import Image from "next/image";
 
 interface Props {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
 export default async function TeacherProfilePage({ params }: Props) {
+  const { id } = await params;
+
   const author = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       courses: {
         include: {

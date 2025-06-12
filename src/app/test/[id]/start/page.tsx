@@ -6,14 +6,15 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function TestStartPage({ params }: Props) {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/');
 
-  const testId = params.id;
+  // Ждём промис params
+  const { id: testId } = await params;
   const userId = session.user.id;
 
   const test = await prisma.test.findUnique({
@@ -37,7 +38,7 @@ export default async function TestStartPage({ params }: Props) {
       <div className="text-gray-700 mb-4">
         <p className="mb-2">
           <strong>Длительность:</strong>{' '}
-          {test.duration ? `${test.duration} мин` : 'Не указана'}
+          {test.duration ? `${test.duration} секунд` : 'Не указана'}
         </p>
         <p>
           <strong>Попыток:</strong>{' '}
@@ -47,13 +48,9 @@ export default async function TestStartPage({ params }: Props) {
 
       <Link
         href={`/test/${testId}/solve`}
-        className={`inline-block px-6 py-3 mt-4 rounded-md font-medium transition ${
-          hasAttempt
-            ? 'bg-gray-400 cursor-not-allowed text-white'
-            : 'bg-blue-600 hover:bg-blue-700 text-white'
-        }`}
+        className="inline-block px-6 py-3 mt-4 rounded-md font-medium transition bg-blue-600 hover:bg-blue-700 text-white"
       >
-        {hasAttempt ? 'Тест уже пройден' : 'Начать тест'}
+        Начать тест
       </Link>
     </div>
   );

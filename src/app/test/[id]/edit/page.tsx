@@ -1,9 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-export default function EditTestPage({ params }: { params: { id: string } }) {
-  const { id: testId } = params;
+type PageProps = {
+  params:  Promise<{
+    id: string;
+  }>;
+};
+export default function EditTestPage({ params }: PageProps) {
+  const testId = params;
   const router = useRouter();
   const [test, setTest] = useState<any>(null);
 

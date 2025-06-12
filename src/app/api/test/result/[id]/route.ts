@@ -4,15 +4,15 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+   req: NextRequest,
+  context: { params: Promise<{ resultId: string }>}
 ) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const resultId = params.id;
+  const resultId = (await context.params).resultId;
   if (!resultId) {
     return NextResponse.json({ error: 'Result ID is required' }, { status: 400 });
   }

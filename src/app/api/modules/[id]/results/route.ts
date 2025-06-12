@@ -1,12 +1,12 @@
 // /app/api/modules/[moduleId]/results/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { moduleId: string } }
+  req: NextRequest,
+  context: { params: Promise<{ moduleId: string  }> }
 ) {
-  const { moduleId } = params;
+  const { moduleId } = await context.params;
 
   try {
     const results = await prisma.testResult.findMany({
@@ -32,7 +32,7 @@ export async function GET(
         },
       },
       orderBy: {
-        finishedAt: 'desc',
+        createdAt: 'desc',
       },
     });
 

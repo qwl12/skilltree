@@ -2,22 +2,23 @@ import SearchBar from '@/components/Searchbar';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     tags?: string;
     page?: string;
     sort?: 'popular' | 'newest' | 'duration' | 'title';
-  };
+  }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q || '';
-  const tagString = searchParams.tags || '';
-  const page = parseInt(searchParams.page || '1');
-  const sort = searchParams.sort || 'popular';
+  const params = await searchParams;
+
+  const query = params.q || '';
+  const tagString = params.tags || '';
+  const page = parseInt(params.page || '1');
+  const sort = params.sort || 'popular';
 
   const PAGE_SIZE = 10;
   const offset = (page - 1) * PAGE_SIZE;
@@ -170,7 +171,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </Link>
         ))}
       </div>
-
 
       {/* Результаты */}
       {courses.length === 0 ? (

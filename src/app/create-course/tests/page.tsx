@@ -1,7 +1,7 @@
 // src/app/create-course/tests/page.tsx
 
 'use client';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import TestForm from '@/components/TestForm';
 
@@ -28,8 +28,9 @@ const CreateTestPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-
+   <Suspense fallback={<div>Loading...</div>}>
       <TestForm moduleId={moduleId} onNext={handleNext} />
+    </Suspense>
     </div>
   );
 };

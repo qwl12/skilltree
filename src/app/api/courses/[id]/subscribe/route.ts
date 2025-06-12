@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,7 +22,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
     }
 
-    const courseId = context.params.id;
+    const courseId = (await context.params).id;
 
     if (!courseId) {
       return NextResponse.json({ error: 'Не указан идентификатор курса' }, { status: 400 });
@@ -44,7 +44,7 @@ export async function DELETE(
 
 export async function POST(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -61,7 +61,7 @@ export async function POST(
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
     }
 
-    const courseId = context.params.id; 
+    const courseId = (await context.params).id; 
 
     if (!courseId) {
       return NextResponse.json({ error: 'Не указан идентификатор курса' }, { status: 400 });

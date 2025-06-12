@@ -1,12 +1,12 @@
 // /app/api/results/[resultId]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  req: Request,
-  { params }: { params: { resultId: string } }
+  req: NextRequest,
+  context: { params: Promise<{ resultId: string }> }
 ) {
-  const { resultId } = params;
+  const { resultId } = await context.params;
 
   try {
     const result = await prisma.testResult.findUnique({

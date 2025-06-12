@@ -17,7 +17,7 @@ export const config = {
 const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'avatars');
 fs.ensureDirSync(uploadDir); // создаёт папку, если её нет
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const form = formidable({
     multiples: false,
     uploadDir,

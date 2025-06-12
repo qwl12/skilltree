@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Inria_Sans } from "next/font/google";
@@ -53,6 +53,7 @@ function Modal({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => 
 }
 
 const Header = () => {
+  
   const { data: session, status } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true); 
@@ -66,6 +67,7 @@ useEffect(() => {
 }, [callbackUrl]);
   return (
     <header className="bg-white shadow-md px-6 py-7 flex justify-around items-center">
+       <Suspense fallback={<div>Loading...</div>}>
       <div className="flex items-center">
         <Image src="/logo.svg" alt="logo" width={60} height={60} priority />
         <Link href="/" className={`${inria.className} text-3xl font-bold text-green-600 hover:text-green-700 transition`}>
@@ -147,6 +149,7 @@ useEffect(() => {
           </button>
         </div>
       </Modal>
+      </Suspense>
     </header>
   );
 };

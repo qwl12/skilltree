@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-
-const prisma = new PrismaClient();
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
@@ -25,7 +24,7 @@ export async function GET(
           lectures: true,
         },
       },
-      enrollments: true, // Получаем список записей на курс
+      enrollments: true,
     },
   });
 
@@ -33,16 +32,24 @@ export async function GET(
     return new Response('Course not found', { status: 404 });
   }
 
-const isSubscribed = course.enrollments.some((s: { userId: string }) => s.userId === userId);
-const subscribers = course.enrollments.length;
-  return Response.json({
+  const isSubscribed = course.enrollments.some(
+    (s: { userId: string }) => s.userId === userId
+  );
+  const subscribers = course.enrollments.length;
+
+  return NextResponse.json({
     ...course,
     isSubscribed,
     subscribers,
   });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const params = await context.params;
+
   try {
     const body = await req.json();
     const { title, description, aboutCourse, image, difficulty } = body;

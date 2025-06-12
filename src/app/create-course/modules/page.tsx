@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import ModuleForm from '@/components/ModuleForm';
 
 const CreateModulePage = () => {
@@ -22,7 +22,9 @@ const CreateModulePage = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <Suspense fallback={<div>Loading...</div>}>
       <ModuleForm courseId={courseId} onNext={handleNext} />
+      </Suspense>
     </div>
   );
 };
