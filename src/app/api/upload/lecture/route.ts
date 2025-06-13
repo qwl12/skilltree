@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { mkdir } from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
-import {prisma} from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'lectures');
+  const uploadDir = path.join(process.cwd(), 'uploads', 'lectures');
   await mkdir(uploadDir, { recursive: true });
 
   const fileName = `${Date.now()}-${uuidv4()}-${file.name}`;
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   await writeFile(filePath, buffer);
 
-  const dbPath = `/uploads/lectures/${fileName}`;
+  const dbPath = `/api/file/lectures/${fileName}`;
 
   await prisma.lecture.update({
     where: { id: lectureId },
