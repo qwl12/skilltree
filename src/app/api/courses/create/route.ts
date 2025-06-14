@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       const fileName = `${uuidv4()}-${imageFile.name}`;
       const filePath = path.join(uploadDir, fileName);
       await writeFile(filePath, buffer);
-
+console.log('Сохраняю файл в:', filePath);
       imagePath = `/uploads/${fileName}`;
     }
 

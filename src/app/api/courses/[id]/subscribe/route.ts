@@ -3,21 +3,19 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-
-// Подписка
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
-    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
-  }
-
+// Подписка на курс
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const body = await req.json();
-    const { courseId } = body;
+    const session = await getServerSession(authOptions);
 
-    if (!courseId) {
-      return NextResponse.json({ error: 'Не указан идентификатор курса' }, { status: 400 });
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
+
+    const { id: courseId } = params;
 
     const enrollment = await prisma.enrollment.upsert({
       where: {
@@ -33,9 +31,40 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ message: 'Подписка успешна', enrollment }, { status: 200 });
+    return NextResponse.json({ message: 'Подписка успешна', enrollment });
   } catch (error) {
     console.error('[SUBSCRIBE_ERROR]', error);
+    return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    }
+
+    const { id: courseId } = params;
+
+    const deleted = await prisma.enrollment.deleteMany({
+       where: {
+          userId: session.user.id, 
+          courseId,
+      },
+    });
+
+    if (deleted.count === 0) {
+      return NextResponse.json({ message: 'Подписка не найдена' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Отписка успешна' });
+  } catch (error) {
+    console.error('[UNSUBSCRIBE_ERROR]', error);
     return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

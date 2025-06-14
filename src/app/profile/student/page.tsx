@@ -72,7 +72,6 @@ const handleAvatarUpload = async (file: File) => {
             />
           )}
        <UploadFile
-          onUpload={handleAvatarUpload}
           previewUrl={avatarUrl}
           label="Загрузить аватар"
         />

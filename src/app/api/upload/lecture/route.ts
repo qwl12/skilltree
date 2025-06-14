@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   const filePath = path.join(uploadDir, fileName);
 
   await writeFile(filePath, buffer);
-
+console.log('Сохраняю файл в:', filePath);
   const dbPath = `/api/file/lectures/${fileName}`;
 
   await prisma.lecture.update({

@@ -11,13 +11,13 @@ export async function POST(req: NextRequest) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const fileName = `${Date.now()}-${file.name}`;
-  const uploadPath = path.join(process.cwd(), 'uploads', 'avatars');
-  const filePath = path.join(uploadPath, fileName);
+  const filename = `${Date.now()}-${file.name}`;
+  const uploadPath = path.join(process.cwd(), 'load', 'avatars');
+  const filePath = path.join(uploadPath, filename);
 
   await fs.mkdir(uploadPath, { recursive: true });
   await fs.writeFile(filePath, buffer);
 
-  const url = `/api/uploads/avatars/${fileName}`;
-  return NextResponse.json({ url });
+  const avatarUrl = `/api/upload/avatar/${filename}`;
+  return NextResponse.json({ avatarUrl });
 }

@@ -1,56 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import formidable, { Fields, Files } from 'formidable';
-import fs from 'fs-extra';
+import fs from 'fs/promises';
 import path from 'path';
-import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 
-export const config = {
-  api: { bodyParser: false },
-};
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const file = formData.get('file') as File | null;
 
-const uploadDir = path.join(process.cwd(), 'uploads', 'avatars');
-fs.ensureDirSync(uploadDir);
+  if (!file) {
+    return NextResponse.json({ error: 'Файл не передан' }, { status: 400 });
+  }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  const form = formidable({
-    multiples: false,
-    uploadDir,
-    keepExtensions: true,
-    filename: (name, ext, part) => {
-      const timestamp = Date.now();
-      const safeName = part.originalFilename?.replace(/\s/g, '_') || 'upload';
-      return `${timestamp}_${safeName}`;
-    },
-  });
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
 
-  return new Promise((resolve) => {
-    form.parse(req as any, async (err, fields: Fields, files: Files) => {
-      if (err) {
-        console.error('Form parsing error:', err);
-        return resolve(NextResponse.json({ error: 'Upload error' }, { status: 500 }));
-      }
+  const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`;
+  const uploadDir = path.join(process.cwd(), 'load', 'avatars');
 
-      const file = files.avatar || files.file;
-      if (!file || !Array.isArray(file) || !file[0]) {
-        return resolve(NextResponse.json({ error: 'No file provided' }, { status: 400 }));
-      }
+  try {
+    await fs.mkdir(uploadDir, { recursive: true });
+    const filePath = path.join(uploadDir, fileName);
+    await fs.writeFile(filePath, buffer);
 
-      const filename = path.basename(file[0].filepath);
-      const fileUrl = `/api/file/avatars/${filename}`;
-
-      const session = await getServerSession(authOptions);
-      if (!session?.user?.email) {
-        return resolve(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
-      }
-
-      await prisma.user.update({
-        where: { email: session.user.email },
-        data: { image: fileUrl },
-      });
-
-      return resolve(NextResponse.json({ url: fileUrl }));
-    });
-  });
+    const url = `/api/upload/avatar/${fileName}`;
+    return NextResponse.json({ avatarUrl: url });
+  } catch (error) {
+    console.error('Ошибка сохранения файла:', error);
+    
+    return NextResponse.json({ error: 'Не удалось сохранить файл' }, { status: 500 });
+  }
 }

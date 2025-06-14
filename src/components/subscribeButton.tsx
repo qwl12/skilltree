@@ -20,7 +20,6 @@ export default function SubscribeButton({
     try {
       const res = await fetch(`/api/courses/${courseId}/subscribe`, {
         method: 'POST',
-        body: JSON.stringify({ courseId }),
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -43,7 +42,7 @@ export default function SubscribeButton({
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/courses/${courseId}/unsubscribe`, {
+      const res = await fetch(`/api/courses/${courseId}/subscribe`, {
         method: 'DELETE',
       });
 

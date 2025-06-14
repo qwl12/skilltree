@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, buffer);
-
+console.log('Сохраняю файл в:', filePath);
   const avatarUrl = `/uploads/avatars/${fileName}`;
 
   await prisma.user.update({

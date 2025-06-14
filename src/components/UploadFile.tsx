@@ -4,14 +4,12 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 interface UploadFileProps {
-  onUpload: (file: File) => Promise<void>;
   previewUrl?: string;
   label?: string;
   accept?: string;
 }
 
 export default function UploadFile({
-  onUpload,
   previewUrl,
   label = 'Загрузить файл',
   accept = 'image/*',
@@ -23,9 +21,23 @@ export default function UploadFile({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setPreview(URL.createObjectURL(file));
     setLoading(true);
-    await onUpload(file);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/upload/avatar', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setPreview(data.avatarUrl);
+    } else {
+      alert('Ошибка загрузки');
+    }
+
     setLoading(false);
   };
 
@@ -35,7 +47,7 @@ export default function UploadFile({
       {preview && (
         <Image
           src={preview}
-          alt="Предпросмотр"
+          alt="Аватар"
           width={200}
           height={200}
           className="rounded-xl object-cover"

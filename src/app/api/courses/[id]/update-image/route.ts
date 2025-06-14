@@ -28,7 +28,7 @@ export async function PUT(
     await writeFile(filePath, buffer);
 
     const imagePath = `/uploads/${fileName}`;
-
+console.log('Сохраняю файл в:', filePath);
     await prisma.course.update({
       where: { id: courseId },
       data: { image: imagePath },

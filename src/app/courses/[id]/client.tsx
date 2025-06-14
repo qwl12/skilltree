@@ -177,7 +177,6 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
 
       <div>
         <UploadFile
-          onUpload={handleCourseImageUpload}
           previewUrl={course.image}
           label="Обновить изображение курса"
         />
@@ -254,7 +253,7 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
             <p className="mb-2 text-gray-600">Подписчиков: {course.subscribers}</p>
             <p className="mb-2">{description}</p>
             <p className="mb-2">Преподаватель: {teacher?.name}</p>
-
+          
            <SubscribeButton
               courseId={course.id}
               isSubscribed={isSubscribed}
