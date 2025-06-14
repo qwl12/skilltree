@@ -29,7 +29,7 @@ export default function SubscribeButton({
         throw new Error(data.error || 'Ошибка подписки');
       }
 
-      onUnsubscribe()
+      onSubscribe();
     } catch (err: any) {
       setError(err.message || 'Ошибка подписки');
     } finally {
