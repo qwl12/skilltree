@@ -77,8 +77,8 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
   const formData = new FormData();
   formData.append('image', file);
 
-  const res = await fetch(`/api/courses/${course.id}/update-image`, {
-    method: 'PUT',
+  const res = await fetch(`/api/upload-course`, {
+    method: 'POST',
     body: formData,
   });
   }
@@ -176,17 +176,12 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Обновить изображение курса
-        </label>
-        <input type="file" accept="image/*" onChange={handleFileChange} />
+        <UploadFile
+          onUpload={handleCourseImageUpload}
+          previewUrl={course.image}
+          label="Обновить изображение курса"
+        />
 
-<UploadFile
-  onUpload={handleCourseImageUpload}
-  previewUrl={course.image}
-  label="Обновить изображение курса"
-/>
-  
       </div>
 
             <div className="mb-4">
@@ -260,12 +255,13 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
             <p className="mb-2">{description}</p>
             <p className="mb-2">Преподаватель: {teacher?.name}</p>
 
-            <SubscribeButton
-                
+           <SubscribeButton
               courseId={course.id}
               isSubscribed={isSubscribed}
               onSubscribe={() => setIsSubscribed(true)}
+              onUnsubscribe={() => setIsSubscribed(false)}
             />
+
             {isAuthor && (
                 <button
                 onClick={handleEdit}

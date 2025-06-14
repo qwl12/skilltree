@@ -26,7 +26,7 @@ const handleAvatarUpload = async (file: File) => {
   const formData = new FormData();
   formData.append("avatar", file);
 
-  const res = await fetch("/api/profile/avatar", {
+  const res = await fetch("/api/upload-avatar", {
     method: "POST",
     body: formData,
   });
