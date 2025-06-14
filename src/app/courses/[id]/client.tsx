@@ -9,6 +9,7 @@ import Markdown from '@uiw/react-markdown-preview';
 import { CommentList } from '@/components/comments/CommentList';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import UploadFile from '@/components/UploadFile';
 
 
 interface Lecture {
@@ -72,28 +73,15 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
   };
 
 
-  const handleImageUpdate = async () => {
-    if (!selectedImage) return;
+  const handleCourseImageUpload = async (file: File) => {
+  const formData = new FormData();
+  formData.append('image', file);
 
-    setLoading(true);
-    const formData = new FormData();
-    formData.append('image', selectedImage);
-
-    const res = await fetch(`/api/courses/${course.id}/update-image`, {
-      method: 'PUT',
-      body: formData,
-    });
-
-    if (res.ok) {
-      router.refresh(); 
-    } else {
-      const error = await res.text();
-      console.error('Ошибка загрузки изображения:', error);
-    }
-
-    setLoading(false);
-  };
-
+  const res = await fetch(`/api/courses/${course.id}/update-image`, {
+    method: 'PUT',
+    body: formData,
+  });
+  }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setUpdatedCourse((prev) => ({
@@ -193,26 +181,12 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
         </label>
         <input type="file" accept="image/*" onChange={handleFileChange} />
 
-        {preview && (
-          <div className="mt-4">
-            <p className="text-sm text-gray-500 mb-1">Предпросмотр:</p>
-            <Image
-              src={preview}
-              alt="Предпросмотр"
-              width={400}
-              height={250}
-              className="rounded-xl object-cover"
-            />
-          </div>
-        )}
-
-        <button
-          onClick={handleImageUpdate}
-          disabled={loading || !selectedImage}
-          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
-        >
-          {loading ? 'Загрузка...' : 'Обновить изображение'}
-        </button>
+<UploadFile
+  onUpload={handleCourseImageUpload}
+  previewUrl={course.image}
+  label="Обновить изображение курса"
+/>
+  
       </div>
 
             <div className="mb-4">

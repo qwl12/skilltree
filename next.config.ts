@@ -4,5 +4,18 @@ const nextConfig = {
     tsconfigPath: './tsconfig.build.json'
   }
 }
+module.exports = {
+  reactStrictMode: true,
+  experimental: { appDir: true },
+
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/uploads/:path*'
+      }
+    ];
+  }
+};
 
 module.exports = nextConfig;

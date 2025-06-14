@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import VerifyEmailButton from '@/components/VerifyButton';
 import { useRouter } from 'next/navigation';
+import UploadFile from '@/components/UploadFile';
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
@@ -21,24 +22,23 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+const handleAvatarUpload = async (file: File) => {
+  const formData = new FormData();
+  formData.append("avatar", file);
 
-    const formData = new FormData();
-    formData.append("avatar", file);
+  const res = await fetch("/api/profile/avatar", {
+    method: "POST",
+    body: formData,
+  });
 
-    const res = await fetch("/api/profile/avatar", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (data.avatarUrl) {
-      await update();
-      setAvatarUrl(data.avatarUrl);
-    }
-  };
+  const data = await res.json();
+  if (data.avatarUrl) {
+    await update();
+    setAvatarUrl(data.avatarUrl);
+  } else {
+    alert("Ошибка загрузки");
+  }
+};
 
   const handleNameUpdate = async () => {
     try {
@@ -71,12 +71,11 @@ export default function ProfilePage() {
               className="w-45 h-45 rounded-full object-cover shadow-md"
             />
           )}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleUpload}
-            className="text-sm text-gray-600 file:bg-blue-500 file:text-white file:rounded-md file:px-3 file:py-1 file:cursor-pointer"
-          />
+       <UploadFile
+          onUpload={handleAvatarUpload}
+          previewUrl={avatarUrl}
+          label="Загрузить аватар"
+        />
       </div>
       <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-2xl  space-y-8">  
       <div className="space-y-2">

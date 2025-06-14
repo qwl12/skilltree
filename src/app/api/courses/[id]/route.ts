@@ -53,7 +53,7 @@ export async function PUT(
   try {
     const body = await req.json();
     const { title, description, aboutCourse, image, difficulty } = body;
-
+    
     const updated = await prisma.course.update({
       where: { id: params.id },
       data: {

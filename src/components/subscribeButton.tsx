@@ -14,6 +14,18 @@ export default function SubscribeButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const handleUnsubscribe = async () => {
+    if (!confirm("Вы уверены, что хотите отписаться от курса?")) return;
+
+      const res = await fetch(`/api/courses/${courseId}/subscribe`, {
+        method: 'DELETE',
+      });
+    if (res.ok) {
+      alert("Вы успешно отписались от курса");
+    } else {
+      alert("Ошибка при отписке");
+    }
+  };
   const handleSubscribe = async () => {
     setLoading(true);
     setError('');
@@ -38,11 +50,11 @@ export default function SubscribeButton({
   if (isSubscribed) {
     return (
       <button
-        className="bg-gray-300 text-gray-700 px-4 py-2 rounded w-full"
-        disabled
-      >
-        Вы уже подписаны
-      </button>
+          onClick={handleUnsubscribe}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Отписаться
+        </button>
     );
   }
 

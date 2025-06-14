@@ -78,6 +78,7 @@ export default function LecturePage() {
 };
 
 
+
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-4">
       <h1 className="text-2xl font-bold">Лекция</h1>
@@ -130,7 +131,9 @@ export default function LecturePage() {
                 Скачать файл к лекции
               </a>
             </div>
+            
           )}
+          
           <h2 className="text-xl font-semibold">{lecture.title}</h2>
           <div className="prose max-w-none">
             <Markdown 
