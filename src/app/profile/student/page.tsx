@@ -5,40 +5,54 @@ import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import VerifyEmailButton from '@/components/VerifyButton';
 import { useRouter } from 'next/navigation';
-import UploadFile from '@/components/UploadFile';
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
   const [name, setName] = useState('');
   const [emailVerified, setEmailVerified] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const router = useRouter();
 
+  const router = useRouter();
+  const userId = session?.user?.id;
+  const avatarUrl = userId ? `/uploads/users/avatar/${userId}` : '/userProfile.png'; 
   useEffect(() => {
     if (session?.user) {
       setName(session.user.name || '');
       setEmailVerified(!!session.user.emailVerified);
-      setAvatarUrl(session.user.image || '');
+         console.log(session?.user?.image);
     }
   }, [session]);
 
-const handleAvatarUpload = async (file: File) => {
-  const formData = new FormData();
-  formData.append("avatar", file);
+const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) {
+    alert('Файл не выбран');
+    return;
+  }
 
-  const res = await fetch("/api/upload-avatar", {
-    method: "POST",
+  if (!session?.user?.id) {
+    alert('Не удалось определить пользователя');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('userId', session.user.id);
+
+  const res = await fetch('/api/upload/users', {
+    method: 'POST',
     body: formData,
   });
 
   const data = await res.json();
-  if (data.avatarUrl) {
-    await update();
-    setAvatarUrl(data.avatarUrl);
+
+  if (res.ok && data.avatarUrl) {
+    await update(); // Обновляем сессию next-auth
+
   } else {
-    alert("Ошибка загрузки");
+
   }
 };
+
 
   const handleNameUpdate = async () => {
     try {
@@ -60,25 +74,30 @@ const handleAvatarUpload = async (file: File) => {
   }
 
   return (
+    
     <div className="max-w-3xl mx-auto p-6  rounded-2xl mt-10 mb-36 ">
       <h1 className="text-3xl font-bold text-gray-800 py-8">Профиль</h1>
+
       <div className='flex justify-center'>
         <div className="flex flex-col gap-4">
           {avatarUrl && (
-            <img
-              src={avatarUrl}
-              alt="Avatar"
-              className="w-45 h-45 rounded-full object-cover shadow-md"
-            />
+         <img
+            src={`/api/upload/users/${session?.user?.id}/avatar.jpg?t=${Date.now()}`}
+            alt="Avatar"
+            className="w-45 h-45 rounded-full object-cover shadow-md"
+          />
           )}
-       <UploadFile
-          previewUrl={avatarUrl}
-          label="Загрузить аватар"
-        />
+      <input
+            type="file"
+            accept="image/*"
+            onChange={handleUpload}
+            className="text-sm text-gray-600 file:bg-blue-500 file:text-white file:rounded-md file:px-3 file:py-1 file:cursor-pointer"
+          />
       </div>
       <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-2xl  space-y-8">  
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">Отображаемое имя:</label>
+    
         <input
           type="text"
           value={name}

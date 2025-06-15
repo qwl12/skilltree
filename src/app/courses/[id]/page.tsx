@@ -4,8 +4,10 @@ import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+
+export default async function Page(
+  context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/courses/${id}`, {
     cache: 'no-store',

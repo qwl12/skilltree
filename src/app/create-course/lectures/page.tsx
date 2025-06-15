@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import LectureForm from '@/components/LectureForm';
+import { LectureForm } from '@/components/LectureForm';
 
 const CreateLecturePage = () => {
   const router = useRouter();
@@ -15,14 +15,12 @@ const CreateLecturePage = () => {
 
   if (!moduleId) return null;
 
-  const handleNext = () => {
-    router.push('/create-course/tests');
-  };
+ 
 
   return (
    <Suspense fallback={<div>Loading...</div>}>
       <div className="max-w-3xl mx-auto p-6">
-        <LectureForm moduleId={moduleId} onNext={handleNext} />
+        <LectureForm moduleId={moduleId}  />
       </div>
     </Suspense>
   );

@@ -1,28 +1,27 @@
-// src/components/AvatarUploader.tsx
 'use client';
-
 import { useState } from 'react';
-import axios from 'axios';
 
-export default function AvatarUploader() {
+export default function AvatarUploader({ userId }: { userId: string }) {
   const [file, setFile] = useState<File | null>(null);
 
   const handleUpload = async () => {
     if (!file) return;
     const formData = new FormData();
-    formData.append('avatar', file);
-    try {
-      await axios.post('/api/profile/upload-avatar', formData);
-      alert('Аватар успешно загружен');
-    } catch (error) {
-      console.error(error);
-      alert('Ошибка при загрузке аватара');
-    }
+    formData.append('file', file);
+    formData.append('userId', userId);
+
+    const res = await fetch('/api/upload/users', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    console.log('Uploaded file path:', data.path);
   };
 
   return (
     <div>
-      <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+      <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} />
       <button onClick={handleUpload}>Загрузить</button>
     </div>
   );

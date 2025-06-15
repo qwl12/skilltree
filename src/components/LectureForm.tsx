@@ -1,45 +1,136 @@
 'use client';
-import { useState } from 'react';
 
-interface Props {
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+import Markdown from '@uiw/react-markdown-preview';
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+
+interface LectureFormProps {
   moduleId: string;
-  onNext: () => void;
 }
+export const LectureForm: React.FC<LectureFormProps> = ({ moduleId }) => {
+  const router = useRouter();
+  const { id: lectureId } = useParams();
 
-export default function LectureForm({ moduleId, onNext }: Props) {
+  const [lecture, setLecture] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(!lectureId);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (!lectureId) return;
 
-    const res = await fetch('/api/lectures/create', {
-      method: 'POST',
-      body: JSON.stringify({ title, content, moduleId }),
-    });
+    async function fetchLecture() {
+      const res = await fetch(`/api/lectures/${lectureId}`);
+      if (!res.ok) return;
 
-    if (res.ok) onNext();
-    else alert('Ошибка при создании лекции');
+      const data = await res.json();
+      setLecture(data);
+      setTitle(data.title);
+      setContent(data.content);
+    }
+
+    fetchLecture();
+  }, [lectureId]);
+
+  const handleSave = async () => {
+  const method = lectureId ? 'PUT' : 'POST';
+  const url = lectureId ? `/api/lectures/${lectureId}` : '/api/lectures/create';
+
+  const bodyData = {
+    title,
+    content,
+    ...(lectureId ? {} : { moduleId }), // важное исправление
   };
 
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bodyData),
+  });
+
+  if (res.ok) {
+    const savedLecture = await res.json();
+    setLecture(savedLecture);
+    setIsEditing(false);
+
+    if (!lectureId) {
+      router.push(`/lectures/${savedLecture.id}`);
+    }
+  } else {
+    alert('Ошибка при сохранении лекции');
+  }
+};
+
+
+  if (lectureId && !lecture) return <p>Загрузка...</p>;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <input
-        type="text"
-        placeholder="Название лекции"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
-      <textarea
-        placeholder="Содержимое лекции"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-        Далее
-      </button>
-    </form>
+    <div className="max-w-3xl mx-auto p-6 space-y-4">
+      <h1 className="text-2xl font-bold">{lectureId ? 'Лекция' : 'Создать лекцию'}</h1>
+
+      {isEditing ? (
+        <>
+          <input
+            type="text"
+            className="w-full p-2 border rounded"
+            placeholder="Название лекции"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+
+          <label className="block mb-1 font-medium mt-4">Содержимое лекции</label>
+          <div className="border rounded">
+            <MDEditor
+              value={content}
+              onChange={(val = '') => setContent(val)}
+              height={400}
+              style={{
+    
+                padding: '1rem',
+                borderRadius: '8px',
+
+              }}
+              className="rounded-md shadow"
+            />
+          </div>
+
+          <button
+            onClick={handleSave}
+            className="bg-green-500 text-white px-4 py-2 rounded mt-4"
+          >
+            Сохранить
+          </button>
+        </>
+      ) : (
+        <>
+          <h2 className="text-xl font-semibold">{lecture.title}</h2>
+          <div className="prose max-w-none">
+            <Markdown
+              source={lecture.content}
+              style={{
+                backgroundColor: '#f9f9f9',
+                padding: '1rem',
+                borderRadius: '8px',
+                color: '#333',
+              }}
+              className="rounded-md shadow"
+              wrapperElement={{ 'data-color-mode': 'light' }}
+            />
+          </div>
+
+          <button
+            onClick={() => setIsEditing(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+          >
+            Редактировать
+          </button>
+        </>
+      )}
+    </div>
   );
 }

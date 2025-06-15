@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SubscribeButton from '@/components/subscribeButton';
 
 import Link from 'next/link';
@@ -9,7 +9,9 @@ import Markdown from '@uiw/react-markdown-preview';
 import { CommentList } from '@/components/comments/CommentList';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import UploadFile from '@/components/UploadFile';
+import CourseImageUpload from '@/components/CourseImageUpload';
+import axios from 'axios';
+
 
 
 interface Lecture {
@@ -48,40 +50,30 @@ interface Course {
 
 interface CourseDetailClientProps {
   course: Course;
-    currentUserId: string | null;
-}
+  currentUserId: string | null;
+  initialIsSubscribed?: boolean;
+  initialEnrollmentCount?: number;
+  
+} 
 
-export default function CourseDetailClient({ course, currentUserId }: CourseDetailClientProps) {
-  const [isSubscribed, setIsSubscribed] = useState(course.isSubscribed);
+export default function CourseDetailClient({
+  course,
+  currentUserId,
+  initialIsSubscribed,
+  initialEnrollmentCount,
+}: CourseDetailClientProps) {
+  const [isSubscribed, setIsSubscribed] = useState(initialIsSubscribed);
+  const [enrollmentCount, setEnrollmentCount] = useState<number>(initialEnrollmentCount ?? course.subscribers ?? 0);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedCourse, setUpdatedCourse] = useState(course);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const handleEdit = () => {
     setIsEditing(true);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-
-      setSelectedImage(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
 
 
-  const handleCourseImageUpload = async (file: File) => {
-  const formData = new FormData();
-  formData.append('image', file);
 
-  const res = await fetch(`/api/upload-course`, {
-    method: 'POST',
-    body: formData,
-  });
-  }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setUpdatedCourse((prev) => ({
@@ -105,6 +97,10 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
       console.error('Ошибка при обновлении курса');
     }
   };
+useEffect(() => {
+  setIsSubscribed(initialIsSubscribed ?? false);
+  setEnrollmentCount(initialEnrollmentCount ?? course.subscribers ?? 0);
+}, [initialIsSubscribed, initialEnrollmentCount, course.subscribers]);
 
     const handleMarkdownChange = (value: string | undefined) => {
     setUpdatedCourse((prev) => ({
@@ -132,7 +128,6 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
         return 'text-gray-700';
     }
   };
-
   const {
     title,
     image,
@@ -162,26 +157,14 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
 
       
         <p className="mb-2 font-medium">Текущее изображение:</p>
-        {course.image ? (
-          <Image
-            src={course.image}
-            alt="Изображение курса"
-            width={400}
-            height={250}
-            className="rounded-xl object-cover"
-          />
-        ) : (
-          <p className="text-gray-500">Изображение не загружено</p>
-        )}
+     
+           <CourseImageUpload
+              courseId={course.id}
+              currentImageUrl={`/api/upload/courses/${course.id}/image.jpg`}
+            />
       </div>
 
-      <div>
-        <UploadFile
-          previewUrl={course.image}
-          label="Обновить изображение курса"
-        />
 
-      </div>
 
             <div className="mb-4">
               <label htmlFor="difficulty" className="font-semibold">
@@ -218,12 +201,9 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
               </label>
               <MDEditor 
                 style={{
-
                     padding: '1.5rem',
                     borderRadius: '8px',
-         
                 }}
-
                 className="rounded-md shadow"
                 value={aboutCourse || ''} onChange={handleMarkdownChange} />
             </div>
@@ -241,11 +221,12 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
 
             <div className="mb-4">
               <img
-                src={image || '/placeholderCourse.png'}
-                alt="Course"
-                className="w-full h-40 object-cover rounded-xl"
+                src={`/api/upload/courses/${course.id}/image.jpg?t=${Date.now()}`}
+                alt="Изображение курса"
+                className="w-full h-auto rounded-lg object-cover"
               />
             </div>
+        
 
             <div className={`mb-4 font-semibold ${getDifficultyColor()}`}>
               Сложность: {difficulty}
@@ -253,13 +234,16 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
             <p className="mb-2 text-gray-600">Подписчиков: {course.subscribers}</p>
             <p className="mb-2">{description}</p>
             <p className="mb-2">Преподаватель: {teacher?.name}</p>
-          
-           <SubscribeButton
+
+            <SubscribeButton
               courseId={course.id}
-              isSubscribed={isSubscribed}
+              isSubscribed={isSubscribed ?? false}
               onSubscribe={() => setIsSubscribed(true)}
               onUnsubscribe={() => setIsSubscribed(false)}
+              onCountChange={(count) => setEnrollmentCount(count)}
             />
+
+
 
             {isAuthor && (
                 <button
@@ -290,11 +274,28 @@ export default function CourseDetailClient({ course, currentUserId }: CourseDeta
         </div>
 
         <h2 className="text-2xl font-semibold mt-6 mb-2">Содержание</h2>
+       {isEditing ? (
+          <div className="pb-3">
+           <Link href={`/modules/create?courseId=${course.id}`}
+                 className="bg-blue-500 text-white px-4 py-2 rounded"
+          >Создать модуль</Link>
+          </div>
+        ) : null}
         {modules.map((module) => (
           <div key={module.id} className="mb-4">
             <Link href={`/modules/${module.id}`} className="text-xl font-medium text-blue-600 hover:text-blue-700">
               {module.title}
             </Link>
+            {isEditing ? (
+             <div className='pt-3 pb-3'>
+ 
+                <Link href={`/lectures/create?moduleId=${module.id}`}
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Добавить лекцию
+            </Link>
+             </div>
+            ) : null}
             <ul className="list-disc list-inside ml-4">
               {module.lectures.map((lecture) => (
                 <li key={lecture.id}>

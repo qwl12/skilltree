@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function SubscribeButton({
   courseId,
   isSubscribed,
   onSubscribe,
   onUnsubscribe,
+  onCountChange,
 }: {
   courseId: string;
   isSubscribed: boolean;
   onSubscribe: () => void;
   onUnsubscribe: () => void;
+  onCountChange: (count: number) => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hover, setHover] = useState(false);
 
   const handleSubscribe = async () => {
     setLoading(true);
@@ -22,13 +25,11 @@ export default function SubscribeButton({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Ошибка подписки');
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Ошибка подписки');
 
       onSubscribe();
+      onCountChange(data.count);
     } catch (err: any) {
       setError(err.message || 'Ошибка подписки');
     } finally {
@@ -37,21 +38,17 @@ export default function SubscribeButton({
   };
 
   const handleUnsubscribe = async () => {
-    if (!confirm('Вы уверены, что хотите отписаться от курса?')) return;
-
     setLoading(true);
     setError('');
     try {
       const res = await fetch(`/api/courses/${courseId}/subscribe`, {
         method: 'DELETE',
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Ошибка отписки');
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Ошибка отписки');
 
       onUnsubscribe();
+      onCountChange(data.count);
     } catch (err: any) {
       setError(err.message || 'Ошибка отписки');
     } finally {
@@ -59,25 +56,32 @@ export default function SubscribeButton({
     }
   };
 
+  const baseClasses = 'px-10 py-2 font-semibold rounded-md transition-all duration-300';
+  const buttonClasses = isSubscribed
+    ? hover
+      ? 'bg-red-600 text-white'
+      : 'bg-gray-200 text-black hover:bg-red-600 hover:text-white'
+    : 'bg-green-600 text-white hover:bg-green-700';
+
   return (
-    <div className="w-full">
-      {isSubscribed ? (
-        <button
-          onClick={handleUnsubscribe}
-          disabled={loading}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
-        >
-          {loading ? 'Отписка...' : 'Отписаться'}
-        </button>
-      ) : (
-        <button
-          onClick={handleSubscribe}
-          disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full"
-        >
-          {loading ? 'Подписка...' : 'Подписаться'}
-        </button>
-      )}
+    <div className="inline-block">
+      <button
+        onClick={isSubscribed ? handleUnsubscribe : handleSubscribe}
+        disabled={loading}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        className={`${baseClasses} ${buttonClasses}`}
+      >
+        {loading
+          ? isSubscribed
+            ? 'Обработка...'
+            : 'Подписка...'
+          : isSubscribed
+          ? hover
+            ? 'Отписаться'
+            : 'Вы подписаны'
+          : 'Подписаться'}
+      </button>
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );

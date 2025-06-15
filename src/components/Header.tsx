@@ -60,6 +60,7 @@ const Header = () => {
   
  const searchParams = useSearchParams();
 const callbackUrl = searchParams.get('callbackUrl');
+const avatarUrl = session?.user.id;
 useEffect(() => {
   if (callbackUrl) {
     setIsModalOpen(true);
@@ -75,7 +76,7 @@ useEffect(() => {
         </Link>
 
         <nav className="space-x-4 flex px-10">
-          <Image src="/arrowdown.svg" alt="arrow" width={10} height={7} />
+
           <Link href="/create-course" className="text-black hover:text-green-700">Создать курс</Link>
           {status === "authenticated" ? (
           <Link href="/dashboard/student" className="text-black hover:text-green-700">Мое обучение</Link>
@@ -101,13 +102,14 @@ useEffect(() => {
             <span>{session.user?.name}</span>
             </Link>
             <Link href="/profile/student">
-            <Image
-                src={session.user.image || "/userProfile.png"}
-                alt="Аватар пользователя"
-                width={70}
-                height={20}
-                className="object-fit rounded-2xl"
-              />
+    
+                   {avatarUrl && (
+         <img
+            src={`/api/upload/users/${session?.user?.id}/avatar.jpg?t=${Date.now()}`}
+            alt="Avatar"
+            className="w-17 h-17 rounded-full object-cover shadow-md"
+          />
+          )}
             </Link>
             
             <button onClick={() => signOut()} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition">

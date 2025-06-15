@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // Подписка на курс
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
 
-    const { id: courseId } = params;
+    const courseId = (await context.params).id;
 
     const enrollment = await prisma.enrollment.upsert({
       where: {
@@ -40,7 +40,7 @@ export async function POST(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -48,8 +48,7 @@ export async function DELETE(
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
     }
-
-    const { id: courseId } = params;
+    const courseId = (await context.params).id;
 
     const deleted = await prisma.enrollment.deleteMany({
        where: {
