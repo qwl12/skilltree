@@ -14,12 +14,12 @@ export async function POST(req: Request) {
     }
 
     const token = uuidv4()
-
+const utcDate = new Date();
     await prisma.passwordResetToken.create({
       data: {
         token,
         userId: user.id,
-        expires: new Date(Date.now() + 1000 * 60 * 60),
+        expires: new Date(utcDate.getTime() + 3 * 60 * 60 * 1000),
       },
     })
 
